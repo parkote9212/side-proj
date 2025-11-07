@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgc.sideproj.mapper.AuctionItemMapper">
+
+    <insert id="upsertMaster"
+            parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO"
+            useGeneratedKeys="false">
+
+        INSERT INTO auction_master (
+            cltr_no, cltr_nm, ctgr_full_nm, ldnm_adrs, nmrd_adrs,
+            cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude, onbid_detail_url
+        )
+        VALUES (
+                   #{cltrNo}, #{cltrNm}, #{ctgrFullNm}, #{ldnmAdrs}, #{nmrdAdrs},
+                   #{clnLdnmAdrs}, #{clnNmrdAdrs}, #{latitude}, #{longitude}, #{onbidDetailUrl}
+               )
+            ON DUPLICATE KEY UPDATE
+                                 cltr_nm = VALUES(cltr_nm),
+                                 ctgr_full_nm = VALUES(ctgr_full_nm),
+                                 ldnm_adrs = VALUES(ldnm_adrs),
+                                 nmrd_adrs = VALUES(nmrd_adrs),
+                                 cln_ldnm_adrs = VALUES(cln_ldnm_adrs),
+                                 cln_nmrd_adrs = VALUES(cln_nmrd_adrs),
+
+                                 -- 좌표는 Geocoding 후 업데이트되어야 하므로 UPSERT 필수
+                                 latitude = VALUES(latitude),
+                                 longitude = VALUES(longitude),
+
+                                 onbid_detail_url = VALUES(onbid_detail_url);
+    </insert>
+
+    <insert id="upsertHistory"
+            parameterType="com.pgc.sideproj.dto.db.AuctionHistoryDTO"
+            useGeneratedKeys="false">
+
+        INSERT INTO auction_history (
+            cltr_hstr_no, cltr_no, min_bid_prc, apsl_ases_avg_amt,
+            pbct_begn_dtm, pbct_cls_dtm, pbct_cltr_stat_nm
+        )
+        VALUES (
+                   #{cltrHstrNo}, #{cltrNo}, #{minBidPrc}, #{apslAsesAvgAmt},
+                   #{pbctBegnDtm}, #{pbctClsDtm}, #{pbctCltrStatNm}
+               )
+            ON DUPLICATE KEY UPDATE
+                                 cltr_no = VALUES(cltr_no),
+                                 min_bid_prc = VALUES(min_bid_prc),
+                                 apsl_ases_avg_amt = VALUES(apsl_ases_avg_amt),
+                                 pbct_begn_dtm = VALUES(pbct_begn_dtm),
+                                 pbct_cls_dtm = VALUES(pbct_cls_dtm),
+                                 pbct_cltr_stat_nm = VALUES(pbct_cltr_stat_nm);
+    </insert>
+
+</mapper>
