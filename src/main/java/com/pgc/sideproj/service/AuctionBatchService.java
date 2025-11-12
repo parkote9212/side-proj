@@ -25,7 +25,7 @@ public class AuctionBatchService {
         fetchAndSaveOnbidData();
     }
 
-    @SchedulerLock(name = "onbidManualBatchRun", lockAtLeastFor = "PT1M", lockAtMostFor = "PT30M")
+    // @SchedulerLock(name = "onbidManualBatchRun", lockAtLeastFor = "PT1M", lockAtMostFor = "PT30M")
     public void fetchAndSaveOnbidData(){
         log.info("Onbid 전체 데이터 수집 배치를 시작합니다.");
         processBatchData();
@@ -35,7 +35,7 @@ public class AuctionBatchService {
     private void processBatchData() {
         int pageNo = 1;
         int totalCount = 0;
-        final int numOfRows = 10;
+        final int numOfRows = 100;
         boolean shouldContinue = true;
 
         while (shouldContinue) {

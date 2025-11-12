@@ -28,15 +28,16 @@ public class BatchTestController {
 
     @PostMapping("/api/admin/batch/run")
     public ResponseEntity<String> runBatch() {
+        log.info("=== Manual batch execution requested ===");
         try {
-            log.info("Manual batch execution requested");
+            log.info("Starting batch service execution...");
             auctionBatchService.fetchAndSaveOnbidData();
             log.info("Manual batch execution completed successfully");
             return ResponseEntity.ok("Batch executed successfully");
         } catch (Exception e) {
-            log.error("Manual batch execution failed", e);
+            log.error("Manual batch execution failed with error: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                .body("Batch execution failed. Check logs for details.");
+                .body("Batch execution failed: " + e.getMessage());
         }
     }
 }

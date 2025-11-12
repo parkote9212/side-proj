@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 // --- Swagger UI 접근 허용 ---
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/admin/**"
                         ).permitAll()
 
                         // 찜하기 API는 'USER' 권한을 가진 사용자만 허용
