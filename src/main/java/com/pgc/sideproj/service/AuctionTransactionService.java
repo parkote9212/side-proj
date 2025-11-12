@@ -6,18 +6,16 @@ import com.pgc.sideproj.dto.kakao.KakaoAddressResponseDTO;
 import com.pgc.sideproj.dto.onbid.OnbidItemDTO;
 import com.pgc.sideproj.mapper.AuctionItemMapper;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuctionTransactionService {
-
-    private static final Logger log = LoggerFactory.getLogger(AuctionTransactionService.class);
 
     private final DataCleansingService dataCleansingService;
     private final KakaoMapService kakaoMapService;

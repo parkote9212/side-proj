@@ -2,17 +2,16 @@ package com.pgc.sideproj.service;
 
 import com.pgc.sideproj.dto.onbid.OnbidApiResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class OnbidApiService {
-
-    private static final Logger log = LoggerFactory.getLogger(OnbidApiService.class);
 
     private final WebClient onbidWebClient;
     private final String serviceKey;

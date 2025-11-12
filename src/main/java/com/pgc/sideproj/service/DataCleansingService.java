@@ -5,8 +5,7 @@ package com.pgc.sideproj.service;
 import com.pgc.sideproj.dto.onbid.OnbidItemDTO;
 import com.pgc.sideproj.dto.db.AuctionHistoryDTO;
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +16,9 @@ import java.time.format.DateTimeParseException;
  * Onbid API 응답(OnbidItemDTO)을 DB 저장용 DTO(AuctionMasterDTO, AuctionHistoryDTO)로
  * 변환하고 데이터를 정제하는 서비스입니다.
  */
+@Slf4j
 @Service
 public class DataCleansingService {
-
-    private static final Logger log = LoggerFactory.getLogger(DataCleansingService.class);
 
     // Onbid API의 날짜/시간 형식 ("YYYYMMDDHHMMSS")
     private static final DateTimeFormatter ONBID_DATE_TIME_FORMATTER =

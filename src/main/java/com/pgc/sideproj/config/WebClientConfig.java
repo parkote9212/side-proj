@@ -3,8 +3,7 @@ package com.pgc.sideproj.config;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +18,9 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Configuration
 public class WebClientConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(WebClientConfig.class);
 
     @Value("${onbid.api.baseUrl}")
     private String onbidBaseUrl;
