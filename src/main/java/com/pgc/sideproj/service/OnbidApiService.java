@@ -1,25 +1,28 @@
 package com.pgc.sideproj.service;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.pgc.sideproj.dto.onbid.OnbidApiResponseDTO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class OnbidApiService {
+
+    private static final Logger log = LoggerFactory.getLogger(OnbidApiService.class);
 
     private final WebClient onbidWebClient;
     private final String serviceKey;
+    private final XmlMapper xmlMapper;
 
     public OnbidApiService(@Qualifier("onbidWebClient") WebClient onbidWebClient,
                           @Value("${onbid.api.serviceKey}") String serviceKey) {
         this.onbidWebClient = onbidWebClient;
         this.serviceKey = serviceKey;
+        this.xmlMapper = new XmlMapper();
         log.info("OnbidApiService initialized with serviceKey: {}", serviceKey != null ? "[PRESENT]" : "[NULL]");
     }
 
@@ -42,7 +45,8 @@ public class OnbidApiService {
 
 
         try {
-            OnbidApiResponseDTO responseDTO = onbidWebClient
+            // 1. WebClient로 XML 문자열 받기
+            String xmlResponse = onbidWebClient
                     .get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/getKamcoPbctCltrList")
@@ -52,10 +56,15 @@ public class OnbidApiService {
                             .queryParam("DPSL_MTD_CD", "0001")
                             .build())
                     .retrieve()
-                    .bodyToMono(OnbidApiResponseDTO.class)
+                    .bodyToMono(String.class)
                     .block();
             
-            log.info("XML 자동 파싱 완료 - totalCount: {}", 
+            log.info("OnBid API XML 응답 수신 완료");
+            
+            // 2. Jackson XmlMapper로 수동 파싱
+            OnbidApiResponseDTO responseDTO = xmlMapper.readValue(xmlResponse, OnbidApiResponseDTO.class);
+            
+            log.info("Jackson XML 파싱 완료 - totalCount: {}", 
                 responseDTO != null && responseDTO.getBody() != null ? responseDTO.getBody().getTotalCount() : "null");
             
             return responseDTO;

@@ -4,6 +4,28 @@
 
 <mapper namespace="com.pgc.sideproj.mapper.AuctionItemMapper">
 
+    <select id="countItems" resultType="int">
+        SELECT COUNT(cltr_no)
+        FROM auction_master
+        <if test="keyword != null and keyword != ''">
+            WHERE MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+            AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+        </if>
+    </select>
+
+    <select id="findItems" resultType="com.pgc.sideproj.dto.db.AuctionMasterDTO">
+        SELECT
+        cltr_no, cltr_nm, ctgr_full_nm,
+        ldnm_adrs, nmrd_adrs,       cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude,           onbid_detail_url               FROM auction_master
+        <if test="keyword != null and keyword != ''">
+            WHERE MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+            AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+        </if>
+        ORDER BY cltr_no DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+
     <insert id="upsertMaster"
             parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO"
             useGeneratedKeys="false">

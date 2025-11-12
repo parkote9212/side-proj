@@ -35,8 +35,25 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+        // --- 1. 진단 로그 추가 ---
+        log.info("JwtTokenProvider.init() 시작");
+        if (secretKey == null || secretKey.isBlank()) {
+            log.error("치명적 오류: jwt.secret-key가 로드되지 않았습니다! (secretKey is NULL or empty)");
+            // 여기서 예외를 발생시켜 앱 시작을 중단시키는 것이 좋습니다.
+            throw new IllegalArgumentException("jwt.secret-key가 설정되지 않았습니다.");
+        } else {
+            log.info("jwt.secret-key 로드 성공. (길이: {}자)", secretKey.length());
+        }
+
+        // --- 2. 기존 로직 (try-catch 추가) ---
+        try {
+            byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+            this.key = Keys.hmacShaKeyFor(keyBytes);
+            log.info("Key 객체 생성 성공 (this.key is not null)");
+        } catch (Exception e) {
+            log.error("Key 객체 생성 중 치명적 오류 발생", e);
+            // e.g., 키 길이가 너무 짧으면 WeakKeyException 발생
+        }
     }
 
     /**

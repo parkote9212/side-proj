@@ -2,12 +2,10 @@ package com.pgc.sideproj.service;
 
 import com.pgc.sideproj.dto.kakao.KakaoAddressResponseDTO;
 import com.pgc.sideproj.dto.kakao.KakaoAddressResponseDTO.DocumentDTO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -19,10 +17,10 @@ import java.time.Duration;
 /**
  * 카카오 지도 API (Geocoding) 호출을 담당하는 서비스입니다.
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class KakaoMapService {
+
+    private static final Logger log = LoggerFactory.getLogger(KakaoMapService.class);
 
     private final WebClient kakaoWebClient;
     private final String kakaoApiKey;
