@@ -48,7 +48,13 @@ public class SecurityConfig {
                         // 회원가입 및 로그인 API, 물건 조회 API는 인증 없이 모두 허용 (permitAll)
                         .requestMatchers(
                                 "/api/v1/auth/**",
-                                "/api/v1/items/**"
+                                "/api/v1/items/**",
+                                "/api/v1/statistics/**",
+
+                                // --- Swagger UI 접근 허용 ---
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
 
                         // 찜하기 API는 'USER' 권한을 가진 사용자만 허용
