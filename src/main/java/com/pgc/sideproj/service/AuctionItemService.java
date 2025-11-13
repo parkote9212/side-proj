@@ -1,7 +1,10 @@
 // AuctionItemService.java
 package com.pgc.sideproj.service;
 
+import com.pgc.sideproj.dto.db.AuctionHistoryDTO;
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
+import com.pgc.sideproj.dto.response.AuctionItemDetailDTO;
+import com.pgc.sideproj.dto.response.AuctionItemSummaryDTO;
 import com.pgc.sideproj.dto.response.PageResponseDTO;
 import com.pgc.sideproj.mapper.AuctionItemMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ public class AuctionItemService {
      * @param size    페이지 크기
      * @return 페이지네이션 결과 DTO (PageResponseDTO)
      */
-    public PageResponseDTO<AuctionMasterDTO> getItems(String keyword, int page, int size) {
+    public PageResponseDTO<AuctionItemSummaryDTO> getItems(String keyword, int page, int size) {
 
         // 1. offset 계산
         int offset = (page - 1) * size;
@@ -34,9 +37,22 @@ public class AuctionItemService {
         int totalCount = auctionItemMapper.countItems(keyword);
 
         // 3. DB에서 데이터 목록 조회 (FTS 검색어, 페이지네이션 포함)
-        List<AuctionMasterDTO> items = auctionItemMapper.findItems(keyword, offset, size);
+        List<AuctionItemSummaryDTO> items = auctionItemMapper.findItems(keyword, offset, size);
 
         // 4. PageResponseDTO로 래핑하여 반환
         return new PageResponseDTO<>(items, page, size, totalCount);
+    }
+
+    public AuctionItemDetailDTO getItemDetail(String cltrNo) {
+        AuctionMasterDTO master = auctionItemMapper.findMasterByCltrNo(cltrNo)
+                .orElseThrow(() -> new RuntimeException("물건 정보를 찾을 수 없습니다."));
+
+        List<AuctionHistoryDTO> history = auctionItemMapper.findHistoryByCltrNo(cltrNo);
+
+        return AuctionItemDetailDTO.builder()
+                .masterInfo(master)
+                .priceHistory(history)
+                .build();
+
     }
 }

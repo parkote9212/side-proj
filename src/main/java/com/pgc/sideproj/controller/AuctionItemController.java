@@ -1,14 +1,12 @@
 package com.pgc.sideproj.controller;
 
-import com.pgc.sideproj.dto.db.AuctionMasterDTO;
+import com.pgc.sideproj.dto.response.AuctionItemDetailDTO;
+import com.pgc.sideproj.dto.response.AuctionItemSummaryDTO;
 import com.pgc.sideproj.dto.response.PageResponseDTO;
 import com.pgc.sideproj.service.AuctionItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/items")
@@ -26,7 +24,7 @@ public class AuctionItemController {
      * @return PageResponseDTO<AuctionMasterDTO>
      */
     @GetMapping
-    public ResponseEntity<PageResponseDTO<AuctionMasterDTO>> getAuctionItems(
+    public ResponseEntity<PageResponseDTO<AuctionItemSummaryDTO>> getAuctionItems(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "10") int size
@@ -36,10 +34,18 @@ public class AuctionItemController {
         size = Math.max(size, 1);
 
         // 2. 서비스 호출
-        PageResponseDTO<AuctionMasterDTO> response =
+        PageResponseDTO<AuctionItemSummaryDTO> response =
                 auctionItemService.getItems(keyword, page, size);
 
         // 3. 200 OK 응답
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{cltr_no}")
+    public ResponseEntity<AuctionItemDetailDTO> getItemDetail(
+            @PathVariable("cltr_no") String cltrNo
+    ) {
+        AuctionItemDetailDTO detail = auctionItemService.getItemDetail(cltrNo);
+        return ResponseEntity.ok(detail);
     }
 }
