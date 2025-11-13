@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                // --- [추가] 배치 테스트 컨트롤러 허용 ---
                                 "/api/admin/**"
                         ).permitAll()
 

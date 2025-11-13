@@ -17,6 +17,7 @@ public interface AuctionItemMapper {
 
     List<AuctionItemSummaryDTO> findItems(
             @Param("keyword") String keyword,
+            @Param("region") String region,
             @Param("offset") int offset,
             @Param("limit") int limit
     );
@@ -25,5 +26,8 @@ public interface AuctionItemMapper {
     List<AuctionHistoryDTO> findHistoryByCltrNo(String cltrNo);
 
     // --- (2) Phase 2-3 추가: 검색 결과 총 개수 ---
-    int countItems(@Param("keyword") String keyword);
+    int countItems(
+            @Param("keyword") String keyword,
+            @Param("region") String region
+    );
 }

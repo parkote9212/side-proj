@@ -7,20 +7,30 @@
     <select id="countItems" resultType="int">
         SELECT COUNT(cltr_no)
         FROM auction_master
-        <if test="keyword != null and keyword != ''">
-            WHERE MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
-            AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
-        </if>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+                AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+            </if>
+            <if test="region != null and region != ''">
+                AND cln_ldnm_adrs LIKE CONCAT(#{region}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="findItems" resultType="com.pgc.sideproj.dto.response.AuctionItemSummaryDTO">
         WITH MasterFiltered AS (
         SELECT *
         FROM auction_master
-        <if test="keyword != null and keyword != ''">
-            WHERE MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
-            AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
-        </if>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+                AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+            </if>
+            <if test="region != null and region != ''">
+                AND cln_ldnm_adrs LIKE CONCAT(#{region}, '%')
+            </if>
+        </where>
         ),
         LatestHistory AS (
         SELECT

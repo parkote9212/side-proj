@@ -24,14 +24,15 @@
 
     <select id="getCategoryCounts" resultType="com.pgc.sideproj.dto.stats.CategoryStatsDTO">
         SELECT
-            ctgr_full_nm AS categoryName,
+            SUBSTRING_INDEX(ctgr_full_nm, ' / ', 1) AS categoryName,
+
             COUNT(*) AS count
         FROM
             auction_master
         WHERE
             ctgr_full_nm IS NOT NULL AND ctgr_full_nm != ''
         GROUP BY
-            ctgr_full_nm
+            categoryName
         ORDER BY
             count DESC
     </select>

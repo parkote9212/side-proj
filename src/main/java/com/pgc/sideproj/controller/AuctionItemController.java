@@ -26,6 +26,7 @@ public class AuctionItemController {
     @GetMapping
     public ResponseEntity<PageResponseDTO<AuctionItemSummaryDTO>> getAuctionItems(
             @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String region,
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
@@ -35,7 +36,7 @@ public class AuctionItemController {
 
         // 2. 서비스 호출
         PageResponseDTO<AuctionItemSummaryDTO> response =
-                auctionItemService.getItems(keyword, page, size);
+                auctionItemService.getItems(keyword, region, page, size);
 
         // 3. 200 OK 응답
         return ResponseEntity.ok(response);

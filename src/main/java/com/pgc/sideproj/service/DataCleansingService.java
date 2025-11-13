@@ -97,22 +97,42 @@ public class DataCleansingService {
 
     /**
      * 1. 주소 정제 로직
-     * Geocoding에 방해가 될 수 있는 괄호와 내용, 앞뒤 공백을 제거합니다.
+     * Geocoding에 방해가 될 수 있는 괄호, 쉼표(,), 외 필지 정보, 아파트 동/호수 등
+     * 불필요한 상세 정보를 제거하고 핵심 지번까지만 남깁니다.
      *
      * @param rawAddress API에서 받은 원본 주소 문자열
      * @return 정제된 주소 문자열
      */
     private String cleanseAddress(String rawAddress) {
         if (rawAddress == null || rawAddress.isBlank()) {
-            return ""; // null 대신 빈 문자열 반환
+            return "";
         }
 
-        // 1. 양쪽 공백 제거
-        // 2. 정규식을 사용하여 괄호와 그 안의 모든 내용 (예: (상세주소), (아파트)) 제거
-        // 3. 괄호 제거 후 남을 수 있는 앞뒤 공백 재제거
-        return rawAddress.trim()
-                .replaceAll("\\([^\\)]*\\)", "")
-                .trim();
+        String cleaned = rawAddress.trim();
+
+        // 1. 괄호와 그 안의 모든 내용 제거 (토지/건물 명시, 좌권 매수 정보 등)
+        cleaned = cleaned.replaceAll("\\([^\\)]*\\)", "").trim(); // (토지), (건물) 등 제거
+        cleaned = cleaned.replaceAll("\\[[^\\]]*\\]", "").trim(); // [일좌권1매...] 등 대괄호 내용 제거
+
+        // 2. '외', '제', '총', '내', '보관', '출자증권' 등의 키워드와 그 이후의 상세 정보 제거
+        // 복잡한 보관 물품/출자증권 정보는 대부분 "보관", "출자증권", "내" 이후에 나옴.
+        cleaned = cleaned.replaceAll(" 제\\d+층.*| 제\\d+동.*| 외\\s*\\d*필지.*| 총\\s*\\d*좌.*", "").trim();
+
+        // 🚨 키워드 뒤의 정보 강력 제거: "금천세무서 보관중인 전문건설공제조합..." -> "금천세무서"만 남김
+        cleaned = cleaned.replaceAll("\\s보관중인.*| 출자증권.*| 내\\s*보관.*", "").trim();
+
+
+        // 3. 쉼표(,) 뒤의 다중 지번 또는 상세 정보 제거 (가장 강력한 정제)
+        // 핵심 주소는 첫 번째 쉼표 앞에 있을 확률이 높으므로, 첫 번째 쉼표 이후를 모두 제거합니다.
+        // 예: 589-1 , 589-2, 589-3 => 589-1만 남김
+        int commaIndex = cleaned.indexOf(',');
+        if (commaIndex != -1) {
+            // 첫 번째 쉼표가 나타나면, 쉼표 이후는 모두 버립니다.
+            cleaned = cleaned.substring(0, commaIndex).trim();
+        }
+
+        // 4. 최종적으로 남은 문자열의 양쪽 공백 제거
+        return cleaned.trim();
     }
 
     /**

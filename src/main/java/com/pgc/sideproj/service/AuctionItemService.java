@@ -28,16 +28,16 @@ public class AuctionItemService {
      * @param size    페이지 크기
      * @return 페이지네이션 결과 DTO (PageResponseDTO)
      */
-    public PageResponseDTO<AuctionItemSummaryDTO> getItems(String keyword, int page, int size) {
+    public PageResponseDTO<AuctionItemSummaryDTO> getItems(String keyword, String region, int page, int size) {
 
         // 1. offset 계산
         int offset = (page - 1) * size;
 
-        // 2. DB에서 총 개수 조회 (FTS 검색어 포함)
-        int totalCount = auctionItemMapper.countItems(keyword);
+        // 2. DB에서 총 개수 조회 (FTS 검색어, region 포함)
+        int totalCount = auctionItemMapper.countItems(keyword, region);
 
-        // 3. DB에서 데이터 목록 조회 (FTS 검색어, 페이지네이션 포함)
-        List<AuctionItemSummaryDTO> items = auctionItemMapper.findItems(keyword, offset, size);
+        // 3. DB에서 데이터 목록 조회 (FTS 검색어, region, 페이지네이션 포함)
+        List<AuctionItemSummaryDTO> items = auctionItemMapper.findItems(keyword, region, offset, size);
 
         // 4. PageResponseDTO로 래핑하여 반환
         return new PageResponseDTO<>(items, page, size, totalCount);
