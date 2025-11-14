@@ -8,6 +8,7 @@ import com.pgc.sideproj.dto.onbid.OnbidBasicInfoResponseDTO;
 import com.pgc.sideproj.dto.onbid.OnbidFileInfoResponseDTO;
 import com.pgc.sideproj.dto.response.AuctionItemDetailDTO;
 import com.pgc.sideproj.dto.response.AuctionItemSummaryDTO;
+import com.pgc.sideproj.dto.response.BasicInfoResponseDTO;
 import com.pgc.sideproj.dto.response.PageResponseDTO;
 import com.pgc.sideproj.mapper.AuctionItemMapper;
 import lombok.RequiredArgsConstructor;
@@ -54,10 +55,10 @@ public class AuctionItemService {
 
         List<AuctionHistoryDTO> history = auctionItemMapper.findHistoryByCltrNo(cltrNo);
 
-        OnbidBasicInfoDTO basicInfo = null;
+        OnbidBasicInfoDTO xmlBasicInfo = null;
         OnbidBasicInfoResponseDTO basicResponse = onbidApiService.fetchBasicInfoDetail(master.getPlnmNo(), master.getPbctNo());
         if (basicResponse != null && basicResponse.getBody() != null){
-            basicInfo = basicResponse.getBody().getItem();
+            xmlBasicInfo = basicResponse.getBody().getItem();
         }
 
         List<OnbidFileInfoResponseDTO.OnbidFileInfoDTO> fileList = Collections.emptyList();
@@ -66,10 +67,21 @@ public class AuctionItemService {
             fileList = fileResponse.getBody().getFiles();
         }
 
+        BasicInfoResponseDTO responseBasicInfo = null;
+        if (xmlBasicInfo != null) {
+            responseBasicInfo = BasicInfoResponseDTO.builder()
+                    .plnmNm(xmlBasicInfo.getPlnmNm())
+                    .rsbyDept(xmlBasicInfo.getRsbyDept())
+                    .pscgNm(xmlBasicInfo.getPscgNm())
+                    .pscgTpno(xmlBasicInfo.getPscgTpno())
+                    .pscgEmalAdrs(xmlBasicInfo.getPscgEmalAdrs())
+                    .build();
+        }
+
         return AuctionItemDetailDTO.builder()
                 .masterInfo(master)
                 .priceHistory(history)
-                .basicInfo(basicInfo)
+                .basicInfo(responseBasicInfo)
                 .fileList(fileList)
                 .build();
 

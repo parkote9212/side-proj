@@ -21,7 +21,11 @@ public class OnbidFileInfoResponseDTO {
 
     @Getter
     @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Body {
+        @JsonProperty("pageNo")
+        private String pageNo;
+        
         @JacksonXmlElementWrapper(localName = "items")
         @JsonProperty("fileItem") // ◀ 주의: item이 아니라 fileItem [cite: 76]
         private List<OnbidFileInfoDTO> files;

@@ -47,8 +47,8 @@ public class WebClientConfig {
         
         ExchangeStrategies strategies = ExchangeStrategies.builder()
                 .codecs(configurer -> {
-                    configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(xmlMapper, MediaType.APPLICATION_XML));
-                    configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(xmlMapper, MediaType.APPLICATION_XML));
+                    configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(xmlMapper, MediaType.APPLICATION_XML, MediaType.TEXT_XML));
+                    configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(xmlMapper, MediaType.APPLICATION_XML, MediaType.TEXT_XML));
                     configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024); // 2MB
                 })
                 .build();
@@ -58,7 +58,7 @@ public class WebClientConfig {
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(strategies)
                 .defaultHeaders(httpHeaders -> {
-                    httpHeaders.setAccept(java.util.Collections.singletonList(MediaType.APPLICATION_XML));
+                    httpHeaders.setAccept(java.util.Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
                 })
                 .build();
     }
