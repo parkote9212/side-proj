@@ -18,8 +18,13 @@ public interface AuctionItemMapper {
     List<AuctionItemSummaryDTO> findItems(
             @Param("keyword") String keyword,
             @Param("region") String region,
+            @Param("priceFrom") Long priceFrom,
+            @Param("priceTo") Long priceTo,
+            @Param("dateFrom") String dateFrom,
+            @Param("dateTo") String dateTo,
             @Param("offset") int offset,
             @Param("limit") int limit
+
     );
 
     Optional<AuctionMasterDTO> findMasterByCltrNo(String cltrNo);
@@ -28,6 +33,10 @@ public interface AuctionItemMapper {
     // --- (2) Phase 2-3 추가: 검색 결과 총 개수 ---
     int countItems(
             @Param("keyword") String keyword,
-            @Param("region") String region
+            @Param("region") String region,
+            @Param("priceFrom") Long priceFrom,
+            @Param("priceTo") Long priceTo,
+            @Param("dateFrom") String dateFrom,
+            @Param("dateTo") String dateTo
     );
 }

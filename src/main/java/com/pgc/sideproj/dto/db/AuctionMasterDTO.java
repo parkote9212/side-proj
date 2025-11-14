@@ -3,8 +3,6 @@ package com.pgc.sideproj.dto.db;
 
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @Builder
@@ -35,12 +33,10 @@ public class AuctionMasterDTO {
     private String clnNmrdAdrs;
 
     // 위도 (DECIMAL(10, 8))
-    // DB의 DECIMAL 타입은 Double/float의 부동소수점 오류를 피하기 위해
-    // BigDecimal을 사용하는 것이 가장 정확합니다.
-    private BigDecimal latitude;
+    private Double latitude;
 
     // 경도 (DECIMAL(11, 8))
-    private BigDecimal longitude;
+    private Double longitude;
 
     // 온비드 상세 URL (VARCHAR(500))
     private String onbidDetailUrl;

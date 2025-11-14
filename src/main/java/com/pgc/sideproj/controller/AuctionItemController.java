@@ -27,6 +27,10 @@ public class AuctionItemController {
     public ResponseEntity<PageResponseDTO<AuctionItemSummaryDTO>> getAuctionItems(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "") String region,
+            @RequestParam(required = false) Long priceFrom,
+            @RequestParam(required = false) Long priceTo,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
@@ -36,7 +40,7 @@ public class AuctionItemController {
 
         // 2. 서비스 호출
         PageResponseDTO<AuctionItemSummaryDTO> response =
-                auctionItemService.getItems(keyword, region, page, size);
+                auctionItemService.getItems(keyword, region, priceFrom, priceTo, dateFrom, dateTo,page, size);
 
         // 3. 200 OK 응답
         return ResponseEntity.ok(response);

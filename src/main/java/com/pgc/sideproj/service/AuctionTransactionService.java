@@ -59,8 +59,8 @@ public class AuctionTransactionService {
             KakaoAddressResponseDTO.DocumentDTO coords = kakaoMapService.getCoordinates(addressToGeocode);
 
             if (coords != null) {
-                master.setLatitude(coords.getLatitude());
-                master.setLongitude(coords.getLongitude());
+                master.setLatitude(coords.getLatitude().doubleValue());
+                master.setLongitude(coords.getLongitude().doubleValue());
             } else {
                 log.warn("좌표 획득 실패 (주소: {})", addressToGeocode);
             }
