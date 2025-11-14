@@ -18,4 +18,14 @@
         FROM user
         WHERE email = #{email}
     </select>
+
+    <select id="findAll" resultType="com.pgc.sideproj.dto.db.UserDTO">
+        SELECT
+            id,
+            email,
+            nickname,
+            role
+        FROM user
+        ORDER BY id ASC
+    </select>
 </mapper>

@@ -69,12 +69,12 @@ public class JwtTokenProvider {
         claims.put("role", role);
 
         Date now = new Date();
-        Date expriation = new Date(now.getTime() + expirationTime);
+        Date expiration = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(expriation)
+                .setExpiration(expiration)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -96,6 +96,7 @@ public class JwtTokenProvider {
 
         //권한 정보 추출("ROLE_USER")
         String roleString = claims.get("role", String.class);
+
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + roleString)
         );

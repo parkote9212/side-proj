@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +83,30 @@ public class UserService {
         return TokenResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
+                .build();
+    }
+
+    /**
+     * [추가] 관리자용: 모든 사용자 목록 조회
+     * @return UserResponse 리스트 (비밀번호 제외)
+     */
+    public List<UserResponse> getAllUsers(){
+        List<UserDTO> users = userMapper.findAll();
+        
+        return users.stream()
+                .map(this::convertToUserResponse)
+                .collect(Collectors.toList());
+    }
+    /**
+     * [추가] UserDTO를 UserResponse로 변환하는 헬퍼 메소드
+     */
+
+    private UserResponse convertToUserResponse(UserDTO user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .role(user.getRole())
                 .build();
     }
 }

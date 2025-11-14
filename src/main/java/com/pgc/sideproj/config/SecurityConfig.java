@@ -54,15 +54,19 @@ public class SecurityConfig {
                                 // --- Swagger UI 접근 허용 ---
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
+                                "/swagger-ui.html"
                                 // --- [추가] 배치 테스트 컨트롤러 허용 ---
-                                "/api/admin/**"
                         ).permitAll()
 
                         // 찜하기 API는 'USER' 권한을 가진 사용자만 허용
                         .requestMatchers(
                                 "/api/v1/saved-items/**"
                         ).hasRole("USER")
+
+                        .requestMatchers(
+                                "/api/v1/admin/**",
+                                "/api/admin/**" // BatchTestController 경로
+                        ).hasRole("ADMIN")
 
                         // 그 외 모든 요청은 인증된 사용자(Authenticated)만 허용
                         .anyRequest().authenticated()
