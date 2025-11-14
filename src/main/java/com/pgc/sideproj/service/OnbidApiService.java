@@ -2,6 +2,9 @@ package com.pgc.sideproj.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.pgc.sideproj.dto.onbid.OnbidApiResponseDTO;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoDTO;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoResponseDTO;
+import com.pgc.sideproj.dto.onbid.OnbidFileInfoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,6 +74,54 @@ public class OnbidApiService {
         } catch (Exception e) {
             log.error("Onbid API 호출 또는 XML 파싱 중 오류 발생", e);
             throw new RuntimeException("Onbid API 처리 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * [추가] 캠코공매공고 기본정보 상세조회 API 호출
+     */
+
+    public OnbidBasicInfoResponseDTO fetchBasicInfoDetail(String plnmNo, String pbctNo){
+        log.info("Onbid 상세정보 API 호출 - PLNM_NO: {}, PBCT_NO: {}", plnmNo, pbctNo);
+        try {
+            return onbidWebClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/getKamcoPlnmPbctBasicInfoDetail")
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("PLNM_NO", plnmNo)
+                            .queryParam("PBCT_NO", pbctNo)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(OnbidBasicInfoResponseDTO.class)
+                    .block();
+        } catch (Exception e){
+            log.error("Onbid 상세정보 API 호출 실패", e);
+            return null;
+        }
+    }
+    /**
+     * [추가] 캠코공매공고 첨부파일 상세조회 API 호출
+     */
+    public OnbidFileInfoResponseDTO fetchFileInfoDetail(String plnmNo, String pbctNo) {
+        log.info("Onbid 첨부파일 API 호출 - PLNM_NO: {}, PBCT_NO: {}", plnmNo, pbctNo);
+        try {
+            return onbidWebClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/getKamcoPlnmPbctFileInfoDetail") // [cite: 68]
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("PLNM_NO", plnmNo) // [cite: 70]
+                            .queryParam("PBCT_NO", pbctNo) // [cite: 70]
+                            .queryParam("numOfRows", 10) // [cite: 70]
+                            .queryParam("pageNo", 1) // [cite: 70]
+                            .build())
+                    .retrieve()
+                    .bodyToMono(OnbidFileInfoResponseDTO.class) // 이 DTO는 <response> 구조임 [cite: 76]
+                    .block();
+        } catch (Exception e) {
+            log.error("Onbid 첨부파일 API 호출 실패", e);
+            return null;
         }
     }
 }

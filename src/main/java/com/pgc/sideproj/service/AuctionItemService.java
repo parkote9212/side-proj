@@ -3,6 +3,9 @@ package com.pgc.sideproj.service;
 
 import com.pgc.sideproj.dto.db.AuctionHistoryDTO;
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoDTO;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoResponseDTO;
+import com.pgc.sideproj.dto.onbid.OnbidFileInfoResponseDTO;
 import com.pgc.sideproj.dto.response.AuctionItemDetailDTO;
 import com.pgc.sideproj.dto.response.AuctionItemSummaryDTO;
 import com.pgc.sideproj.dto.response.PageResponseDTO;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,6 +23,7 @@ import java.util.List;
 public class AuctionItemService {
 
     private final AuctionItemMapper auctionItemMapper;
+    private final OnbidApiService onbidApiService;
 
     /**
      * FTS 검색 및 페이지네이션을 적용하여 물건 목록을 조회합니다.
@@ -49,9 +54,23 @@ public class AuctionItemService {
 
         List<AuctionHistoryDTO> history = auctionItemMapper.findHistoryByCltrNo(cltrNo);
 
+        OnbidBasicInfoDTO basicInfo = null;
+        OnbidBasicInfoResponseDTO basicResponse = onbidApiService.fetchBasicInfoDetail(master.getPlnmNo(), master.getPbctNo());
+        if (basicResponse != null && basicResponse.getBody() != null){
+            basicInfo = basicResponse.getBody().getItem();
+        }
+
+        List<OnbidFileInfoResponseDTO.OnbidFileInfoDTO> fileList = Collections.emptyList();
+        OnbidFileInfoResponseDTO fileResponse = onbidApiService.fetchFileInfoDetail(master.getPlnmNo(), master.getPbctNo());
+        if (fileResponse != null && fileResponse.getBody() != null && fileResponse.getBody().getFiles() != null) {
+            fileList = fileResponse.getBody().getFiles();
+        }
+
         return AuctionItemDetailDTO.builder()
                 .masterInfo(master)
                 .priceHistory(history)
+                .basicInfo(basicInfo)
+                .fileList(fileList)
                 .build();
 
     }

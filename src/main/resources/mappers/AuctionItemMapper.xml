@@ -58,32 +58,28 @@
     </select>
 
 
-    <insert id="upsertMaster"
-            parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO"
-            useGeneratedKeys="false">
-
+    <insert id="upsertMaster" parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO">
         INSERT INTO auction_master (
             cltr_no, cltr_nm, ctgr_full_nm, ldnm_adrs, nmrd_adrs,
-            cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude, onbid_detail_url
-        )
+            cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude, onbid_detail_url,
+            plnm_no, pbct_no  )
         VALUES (
                    #{cltrNo}, #{cltrNm}, #{ctgrFullNm}, #{ldnmAdrs}, #{nmrdAdrs},
-                   #{clnLdnmAdrs}, #{clnNmrdAdrs}, #{latitude}, #{longitude}, #{onbidDetailUrl}
-               )
-            ON DUPLICATE KEY UPDATE
-                                 cltr_nm = VALUES(cltr_nm),
-                                 ctgr_full_nm = VALUES(ctgr_full_nm),
-                                 ldnm_adrs = VALUES(ldnm_adrs),
-                                 nmrd_adrs = VALUES(nmrd_adrs),
-                                 cln_ldnm_adrs = VALUES(cln_ldnm_adrs),
-                                 cln_nmrd_adrs = VALUES(cln_nmrd_adrs),
-
-                                 -- 좌표는 Geocoding 후 업데이트되어야 하므로 UPSERT 필수
-                                 latitude = VALUES(latitude),
-                                 longitude = VALUES(longitude),
-
-                                 onbid_detail_url = VALUES(onbid_detail_url);
-    </insert>
+                   #{clnLdnmAdrs}, #{clnNmrdAdrs}, #{latitude}, #{longitude}, #{onbidDetailUrl},
+                   #{plnmNo}, #{pbctNo}  )
+        ON DUPLICATE KEY UPDATE
+                             cltr_nm = VALUES(cltr_nm),
+                             ctgr_full_nm = VALUES(ctgr_full_nm),
+                             ldnm_adrs = VALUES(ldnm_adrs),
+                             nmrd_adrs = VALUES(nmrd_adrs),
+                             cln_ldnm_adrs = VALUES(cln_ldnm_adrs),
+                             cln_nmrd_adrs = VALUES(cln_nmrd_adrs),
+                             latitude = VALUES(latitude),
+                             longitude = VALUES(longitude),
+                             onbid_detail_url = VALUES(onbid_detail_url),
+                             plnm_no = VALUES(plnm_no),
+                             pbct_no = VALUES(pbct_no)
+        </insert>
 
     <insert id="upsertHistory"
             parameterType="com.pgc.sideproj.dto.db.AuctionHistoryDTO"

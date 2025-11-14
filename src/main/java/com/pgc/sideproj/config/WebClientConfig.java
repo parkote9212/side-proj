@@ -37,11 +37,11 @@ public class WebClientConfig {
         log.info("Using URL: {}", actualUrl);
         
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                .responseTimeout(Duration.ofSeconds(30))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
+                .responseTimeout(Duration.ofSeconds(60))
                 .doOnConnected(conn -> 
-                    conn.addHandlerLast(new ReadTimeoutHandler(30, TimeUnit.SECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(30, TimeUnit.SECONDS)));
+                    conn.addHandlerLast(new ReadTimeoutHandler(60, TimeUnit.SECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(60, TimeUnit.SECONDS)));
         
         XmlMapper xmlMapper = new XmlMapper();
         

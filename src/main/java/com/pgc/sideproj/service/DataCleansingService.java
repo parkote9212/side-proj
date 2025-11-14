@@ -60,6 +60,8 @@ public class DataCleansingService {
                 // 위도, 경도는 이 단계에서는 null이며, 이후 Geocoding 단계에서 채워집니다.
                 .latitude(null)
                 .longitude(null)
+                .plnmNo(item.getPlnmNo())
+                .pbctNo(item.getPbctNo())
                 .build();
     }
 
