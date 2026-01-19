@@ -16,7 +16,7 @@ public class OnbidApiResponseDTO {
     @JsonProperty("header")
     private Header header;
 
-    @JsonProperty
+    @JsonProperty("body")
     private Body body;
 
     // Header 중첩 클래스

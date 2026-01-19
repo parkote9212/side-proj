@@ -45,6 +45,10 @@ public class AuctionMasterDTO {
     // 온비드 상세 URL (VARCHAR(500))
     private String onbidDetailUrl;
 
+    private String plnmNo; // 공고번호 (PLNM_NO)
+
+    private String pbctNo; // 공매번호 (PBCT_NO)
+
     // 참고: created_at, updated_at 필드는 DB에서 자동 관리되므로
     //      일반적으로 DTO에 포함시키지 않거나, 필요시 읽기 전용으로만 사용합니다.
 }

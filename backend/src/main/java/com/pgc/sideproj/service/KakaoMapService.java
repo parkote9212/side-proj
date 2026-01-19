@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,7 @@ public class KakaoMapService {
      */
     public KakaoMapService(
             @Qualifier("kakaoWebClient") WebClient kakaoWebClient,
-            @Value("${kakao.api.rest-api-key}") String kakaoApiKey) {
+            @Value("${kakao.api.restApiKey}") String kakaoApiKey) {
         this.kakaoWebClient = kakaoWebClient;
         this.kakaoApiKey = kakaoApiKey;
     }
@@ -70,19 +68,18 @@ public class KakaoMapService {
                     .header("Authorization", "KakaoAK " + kakaoApiKey)
                     // 4xx, 5xx 에러 처리 로직
                     .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
-                        // 400 Bad Request, 401 Unauthorized 등의 클라이언트 에러 발생 시 재시도하지 않고 바로 예외 발생
-                        log.error("카카오 API 클라이언트 에러 발생: {} for address: {}", clientResponse.statusCode(), address);
+                    .onStatus(status -> status.is4xxClientError(), clientResponse -> {
+                        log.error("카카오 API 클라이언트 에러 발생: {}", clientResponse.statusCode());
                         return clientResponse.createException();
                     })
-                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
-                        // 500 Internal Server Error 등의 서버 에러 발생 시 재시도하도록 WebClientResponseException 반환
-                        log.warn("카카오 API 서버 에러 발생 (재시도 가능): {} for address: {}", clientResponse.statusCode(), address);
+                    .onStatus(status -> status.is5xxServerError(), clientResponse -> {
+                        log.warn("카카오 API 서버 에러 발생 (재시도 가능): {}", clientResponse.statusCode());
                         return clientResponse.createException();
                     })
                     // 응답 본문을 DTO로 변환하고 블로킹
                     .bodyToMono(KakaoAddressResponseDTO.class)
-                    .block(Duration.ofSeconds(10)); // 10초 타임아웃 설정
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
 
             if (response == null || response.getDocuments() == null || response.getDocuments().isEmpty()) {
                 log.warn("카카오 API로부터 좌표 정보를 찾을 수 없습니다: {}", address);

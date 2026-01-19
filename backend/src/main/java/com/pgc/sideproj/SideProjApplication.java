@@ -1,5 +1,6 @@
 package com.pgc.sideproj;
 
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableRetry
 @EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "PT10M")
 public class SideProjApplication {
 
 	public static void main(String[] args) {

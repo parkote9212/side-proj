@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgc.sideproj.mapper.StatisticsMapper">
+    
+    <select id="getRegionAveragePrice" resultType="com.pgc.sideproj.dto.stats.RegionStatsDTO">
+        SELECT
+            SUBSTRING_INDEX(am.cln_ldnm_adrs, ' ', 1) AS regionName,
+            AVG(ah.min_bid_prc) AS avgPrice
+        FROM
+            auction_master am
+        JOIN
+            auction_history ah ON am.cltr_no = ah.cltr_no
+        WHERE
+            am.cln_ldnm_adrs IS NOT NULL AND am.cln_ldnm_adrs != ''
+        GROUP BY
+            regionName
+        HAVING
+            COUNT(am.cltr_no) > 5
+        ORDER BY
+            avgPrice DESC
+    </select>
+
+    <select id="getCategoryCounts" resultType="com.pgc.sideproj.dto.stats.CategoryStatsDTO">
+        SELECT
+            SUBSTRING_INDEX(ctgr_full_nm, ' / ', 1) AS categoryName,
+
+            COUNT(*) AS count
+        FROM
+            auction_master
+        WHERE
+            ctgr_full_nm IS NOT NULL AND ctgr_full_nm != ''
+        GROUP BY
+            categoryName
+        ORDER BY
+            count DESC
+    </select>
+
+
+
+</mapper>
