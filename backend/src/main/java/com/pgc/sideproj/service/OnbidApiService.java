@@ -1,30 +1,33 @@
 package com.pgc.sideproj.service;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.pgc.sideproj.dto.onbid.OnbidApiResponseDTO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoDTO;
+import com.pgc.sideproj.dto.onbid.OnbidBasicInfoResponseDTO;
+import com.pgc.sideproj.dto.onbid.OnbidFileInfoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
-import java.net.URI;
-
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class OnbidApiService {
 
+    private static final Logger log = LoggerFactory.getLogger(OnbidApiService.class);
 
     private final WebClient onbidWebClient;
+    private final String serviceKey;
+    private final XmlMapper xmlMapper;
 
-    @Value("${onbid.api.service-key}")
-    private String serviceKey;
+    public OnbidApiService(@Qualifier("onbidWebClient") WebClient onbidWebClient,
+                          @Value("${onbid.api.serviceKey}") String serviceKey) {
+        this.onbidWebClient = onbidWebClient;
+        this.serviceKey = serviceKey;
+        this.xmlMapper = new XmlMapper();
+        log.info("OnbidApiService initialized with serviceKey: {}", serviceKey != null ? "[PRESENT]" : "[NULL]");
+    }
 
 
     /**
@@ -42,41 +45,83 @@ public class OnbidApiService {
         //  .queryParam("serviceKey", serviceKey) 대신
         //  .queryParam("serviceKey", URLDecoder.decode(serviceKey, StandardCharsets.UTF_8))
         //  등의 처리가 필요할 수 있습니다.)
-        final URI uri = UriComponentsBuilder
-                .fromPath("/getKamcoPbctCltrList") // 1. API 요청 경로
-                .queryParam("serviceKey", serviceKey)     // 2. 주입받은 서비스 키
-                .queryParam("pageNo", pageNo)         // 3. 파라미터로 받은 페이지 번호
-                .queryParam("numOfRows", numOfRows)   // 4. 파라미터로 받은 행 수
-                .queryParam("DPSL_MTD_CD", "00")   // 5. 고정 파라미터 예시 (매각/임대)
-                // .queryParam("CLTR_MNMT_NO", "2024000001") // (필요시 다른 고정/동적 파라미터 추가)
-                .build(true) // 쿼리 파라미터를 UTF-8로 인코딩합니다.
-                .toUri();
 
-        log.debug("요청 URI: {}", uri);
 
         try {
-            // WebClient를 사용하여 API 호출
+            // 1. WebClient로 XML 문자열 받기
+            String xmlResponse = onbidWebClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/getKamcoPbctCltrList")
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("pageNo", pageNo)
+                            .queryParam("numOfRows", numOfRows)
+                            .queryParam("DPSL_MTD_CD", "0001")
+                            .build())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            
+            log.info("OnBid API XML 응답 수신 완료");
+            
+            // 2. Jackson XmlMapper로 수동 파싱
+            OnbidApiResponseDTO responseDTO = xmlMapper.readValue(xmlResponse, OnbidApiResponseDTO.class);
+            
+            log.info("Jackson XML 파싱 완료 - totalCount: {}", 
+                responseDTO != null && responseDTO.getBody() != null ? responseDTO.getBody().getTotalCount() : "null");
+            
+            return responseDTO;
+        } catch (Exception e) {
+            log.error("Onbid API 호출 또는 XML 파싱 중 오류 발생", e);
+            throw new RuntimeException("Onbid API 처리 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * [추가] 캠코공매공고 기본정보 상세조회 API 호출
+     */
+
+    public OnbidBasicInfoResponseDTO fetchBasicInfoDetail(String plnmNo, String pbctNo){
+        log.info("Onbid 상세정보 API 호출 - PLNM_NO: {}, PBCT_NO: {}", plnmNo, pbctNo);
+        try {
             return onbidWebClient
-                    .get() // GET 요청
-                    .uri(uri) // 생성된 URI 사용
-                    .accept(MediaType.APPLICATION_XML) // 3. XML 응답 수신 설정
-                    .retrieve() // 4. 요청 실행 및 응답 수신
-                    .onStatus( // 5. 4xx (클라이언트) 또는 5xx (서버) 에러 처리
-                            status -> status.is4xxClientError() || status.is5xxServerError(),
-                            clientResponse -> clientResponse.bodyToMono(String.class)
-                                    .flatMap(errorBody -> {
-                                        log.error("Onbid API 에러 발생. Status: {}, Body: {}", clientResponse.statusCode(), errorBody);
-                                        // 비즈니스 로직에 맞는 커스텀 예외를 던지는 것이 좋습니다.
-                                        return Mono.error(new RuntimeException("Onbid API 호출 실패: " + clientResponse.statusCode()));
-                                    })
-                    )
-                    .bodyToMono(OnbidApiResponseDTO.class) // 6. 응답 본문을 DTO로 변환
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/getKamcoPlnmPbctBasicInfoDetail")
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("PLNM_NO", plnmNo)
+                            .queryParam("PBCT_NO", pbctNo)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(OnbidBasicInfoResponseDTO.class)
+                    .block();
+        } catch (Exception e){
+            log.error("Onbid 상세정보 API 호출 실패", e);
+            return null;
+        }
+    }
+    /**
+     * [추가] 캠코공매공고 첨부파일 상세조회 API 호출
+     */
+    public OnbidFileInfoResponseDTO fetchFileInfoDetail(String plnmNo, String pbctNo) {
+        log.info("Onbid 첨부파일 API 호출 - PLNM_NO: {}, PBCT_NO: {}", plnmNo, pbctNo);
+        try {
+            return onbidWebClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/getKamcoPlnmPbctFileInfoDetail") // [cite: 68]
+                            .queryParam("serviceKey", serviceKey)
+                            .queryParam("PLNM_NO", plnmNo) // [cite: 70]
+                            .queryParam("PBCT_NO", pbctNo) // [cite: 70]
+                            .queryParam("numOfRows", 10) // [cite: 70]
+                            .queryParam("pageNo", 1) // [cite: 70]
+                            .build())
+                    .retrieve()
+                    .bodyToMono(OnbidFileInfoResponseDTO.class) // 이 DTO는 <response> 구조임 [cite: 76]
                     .block();
         } catch (Exception e) {
-            log.error("Onbid API 호출 중 예기치 않은 오류 발생", e);
-            // 실제 애플리케이션에서는 예외를 좀 더 구체적으로 처리해야 합니다.
-            throw new RuntimeException("Onbid API 처리 중 오류 발생", e);
-
+            log.error("Onbid 첨부파일 API 호출 실패", e);
+            return null;
         }
     }
 }

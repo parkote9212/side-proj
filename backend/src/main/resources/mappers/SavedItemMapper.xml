@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgc.sideproj.mapper.SavedItemMapper">
+
+    <insert id="save" parameterType="com.pgc.sideproj.dto.db.SavedItemDTO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO saved_item (user_id, item_id)
+        VALUES (#{userId}, #{itemId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM saved_item
+        WHERE user_id = #{userId} AND item_id = #{itemId}
+    </delete>
+
+    <select id="findByUserIdAndItemId" resultType="com.pgc.sideproj.dto.db.SavedItemDTO">
+        SELECT
+            id, user_id, item_id, created_at
+        FROM saved_item
+        WHERE user_id = #{userId} AND item_id = #{itemId}
+    </select>
+
+    <select id="findItemsByUserId" parameterType="long" resultType="com.pgc.sideproj.dto.db.AuctionMasterDTO">
+        SELECT
+            am.cltr_no, am.cltr_nm, am.ctgr_full_nm,
+            am.ldnm_adrs, am.nmrd_adrs,
+            am.cln_ldnm_adrs, am.cln_nmrd_adrs,
+            am.latitude, am.longitude,
+            am.onbid_detail_url
+        FROM
+            saved_item si
+                JOIN
+            auction_master am ON si.item_id = am.cltr_no
+        WHERE
+            si.user_id = #{userId}
+        ORDER BY
+            si.id DESC
+    </select>
+</mapper>

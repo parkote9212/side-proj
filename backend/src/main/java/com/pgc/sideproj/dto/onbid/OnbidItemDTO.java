@@ -26,6 +26,12 @@ public class OnbidItemDTO {
     @JsonProperty("NMRD_ADRS")
     private String nmrdAdrs; // 도로명주소 (원본)
 
+    @JsonProperty("PLNM_NO")
+    private String plnmNo; // 공고번호
+
+    @JsonProperty("PBCT_NO")
+    private String pbctNo; // 공매번호
+
 
     // --- 물건 이력(auction_history) 정보 ---
 

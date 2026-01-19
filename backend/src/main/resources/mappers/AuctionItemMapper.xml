@@ -4,32 +4,82 @@
 
 <mapper namespace="com.pgc.sideproj.mapper.AuctionItemMapper">
 
-    <insert id="upsertMaster"
-            parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO"
-            useGeneratedKeys="false">
+    <select id="countItems" resultType="int">
+        SELECT COUNT(cltr_no)
+        FROM auction_master
+        <where>
+            <if test="keyword != null and keyword != ''">
+                MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+                AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+            </if>
+            <if test="region != null and region != ''">
+                AND cln_ldnm_adrs LIKE CONCAT(#{region}, '%')
+            </if>
+        </where>
+    </select>
 
+    <select id="findItems" resultType="com.pgc.sideproj.dto.response.AuctionItemSummaryDTO">
+        WITH MasterFiltered AS (
+        SELECT *
+        FROM auction_master
+        <where>
+            <if test="keyword != null and keyword != ''">
+                MATCH(cln_ldnm_adrs, cln_nmrd_adrs, cltr_nm)
+                AGAINST(CONCAT('+', #{keyword}, '*') IN BOOLEAN MODE)
+            </if>
+            <if test="region != null and region != ''">
+                AND cln_ldnm_adrs LIKE CONCAT(#{region}, '%')
+            </if>
+        </where>
+        ),
+        LatestHistory AS (
+        SELECT
+        h.*,
+        ROW_NUMBER() OVER(
+        PARTITION BY h.cltr_no
+        ORDER BY h.pbct_cls_dtm DESC, h.cltr_hstr_no DESC
+        ) as rn
+        FROM auction_history h
+        WHERE h.cltr_no IN (SELECT cltr_no FROM MasterFiltered)
+        )
+        SELECT
+        m.*,  lh.min_bid_prc,
+        lh.apsl_ases_avg_amt,
+        lh.pbct_begn_dtm,
+        lh.pbct_cls_dtm,
+        lh.pbct_cltr_stat_nm
+        FROM
+        MasterFiltered m
+        LEFT JOIN
+        LatestHistory lh ON m.cltr_no = lh.cltr_no AND lh.rn = 1
+        ORDER BY
+        m.cltr_no DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+
+    <insert id="upsertMaster" parameterType="com.pgc.sideproj.dto.db.AuctionMasterDTO">
         INSERT INTO auction_master (
             cltr_no, cltr_nm, ctgr_full_nm, ldnm_adrs, nmrd_adrs,
-            cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude, onbid_detail_url
-        )
+            cln_ldnm_adrs, cln_nmrd_adrs, latitude, longitude, onbid_detail_url,
+            plnm_no, pbct_no  )
         VALUES (
                    #{cltrNo}, #{cltrNm}, #{ctgrFullNm}, #{ldnmAdrs}, #{nmrdAdrs},
-                   #{clnLdnmAdrs}, #{clnNmrdAdrs}, #{latitude}, #{longitude}, #{onbidDetailUrl}
-               )
-            ON DUPLICATE KEY UPDATE
-                                 cltr_nm = VALUES(cltr_nm),
-                                 ctgr_full_nm = VALUES(ctgr_full_nm),
-                                 ldnm_adrs = VALUES(ldnm_adrs),
-                                 nmrd_adrs = VALUES(nmrd_adrs),
-                                 cln_ldnm_adrs = VALUES(cln_ldnm_adrs),
-                                 cln_nmrd_adrs = VALUES(cln_nmrd_adrs),
-
-                                 -- 좌표는 Geocoding 후 업데이트되어야 하므로 UPSERT 필수
-                                 latitude = VALUES(latitude),
-                                 longitude = VALUES(longitude),
-
-                                 onbid_detail_url = VALUES(onbid_detail_url);
-    </insert>
+                   #{clnLdnmAdrs}, #{clnNmrdAdrs}, #{latitude}, #{longitude}, #{onbidDetailUrl},
+                   #{plnmNo}, #{pbctNo}  )
+        ON DUPLICATE KEY UPDATE
+                             cltr_nm = VALUES(cltr_nm),
+                             ctgr_full_nm = VALUES(ctgr_full_nm),
+                             ldnm_adrs = VALUES(ldnm_adrs),
+                             nmrd_adrs = VALUES(nmrd_adrs),
+                             cln_ldnm_adrs = VALUES(cln_ldnm_adrs),
+                             cln_nmrd_adrs = VALUES(cln_nmrd_adrs),
+                             latitude = VALUES(latitude),
+                             longitude = VALUES(longitude),
+                             onbid_detail_url = VALUES(onbid_detail_url),
+                             plnm_no = VALUES(plnm_no),
+                             pbct_no = VALUES(pbct_no)
+        </insert>
 
     <insert id="upsertHistory"
             parameterType="com.pgc.sideproj.dto.db.AuctionHistoryDTO"
@@ -52,4 +102,11 @@
                                  pbct_cltr_stat_nm = VALUES(pbct_cltr_stat_nm);
     </insert>
 
+    <select id="findMasterByCltrNo" resultType="com.pgc.sideproj.dto.db.AuctionMasterDTO">
+        SELECT * FROM auction_master WHERE cltr_no = #{cltrNo}
+    </select>
+
+    <select id="findHistoryByCltrNo" resultType="com.pgc.sideproj.dto.db.AuctionHistoryDTO">
+        SELECT * FROM auction_history WHERE cltr_no = #{cltrNo} ORDER BY pbct_cls_dtm DESC
+    </select>
 </mapper>
