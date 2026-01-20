@@ -1,3 +1,4 @@
+
 package com.pgc.sideproj.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -21,7 +22,8 @@ public class OnbidApiService {
     private final String serviceKey;
     private final XmlMapper xmlMapper;
 
-    public OnbidApiService(@Qualifier("onbidWebClient") WebClient onbidWebClient,
+
+public OnbidApiService(@Qualifier("onbidWebClient") WebClient onbidWebClient,
                           @Value("${onbid.api.serviceKey}") String serviceKey) {
         this.onbidWebClient = onbidWebClient;
         this.serviceKey = serviceKey;
@@ -30,7 +32,8 @@ public class OnbidApiService {
     }
 
 
-    /**
+
+/**
      * Onbid API (캠코 공매물건 목록 조회)를 호출합니다.
      *
      * @param pageNo    페이지 번호
@@ -100,9 +103,11 @@ public class OnbidApiService {
             return null;
         }
     }
-    /**
+
+/**
      * [추가] 캠코공매공고 첨부파일 상세조회 API 호출
      */
+
     public OnbidFileInfoResponseDTO fetchFileInfoDetail(String plnmNo, String pbctNo) {
         log.info("Onbid 첨부파일 API 호출 - PLNM_NO: {}, PBCT_NO: {}", plnmNo, pbctNo);
         try {
@@ -124,4 +129,6 @@ public class OnbidApiService {
             return null;
         }
     }
+
+
 }

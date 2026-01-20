@@ -1,7 +1,7 @@
 package com.pgc.sideproj.controller;
 
 import com.pgc.sideproj.dto.response.UserResponse;
-import com.pgc.sideproj.service.AuctionBatchService;
+//import com.pgc.sideproj.service.AuctionBatchService;
 import com.pgc.sideproj.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AuctionBatchService auctionBatchService;
+//    private final AuctionBatchService auctionBatchService;
     private final UserService userService;
 
+    // ====== 온비드 API 기능 임시 비활성화 ======
+    // TODO: 온비드 API 사용 시 주석 해제
     /**
      * [POST] /api/v1/admin/batch/run : 수동 배치 실행
      * (SecurityConfig에서 ROLE_ADMIN만 접근 가능하도록 설정됨)
      */
-
+    /*
     @PostMapping("/batch/run")
     public ResponseEntity<String> runBatch(){
         try {
@@ -40,6 +42,8 @@ public class AdminController {
                     .body("배치 실행에 실패했습니다. 로그를 확인하세요");
         }
     }
+    */
+
     /**
      * [GET] /api/v1/admin/users : 모든 회원 목록 조회
      * (SecurityConfig에서 ROLE_ADMIN만 접근 가능)

@@ -1,3 +1,4 @@
+/*
 package com.pgc.sideproj.service;
 
 import com.pgc.sideproj.dto.onbid.OnbidApiResponseDTO;
@@ -18,6 +19,10 @@ public class AuctionBatchService {
     private final OnbidApiService onbidApiService;
     private final AuctionTransactionService auctionTransactionService;
 
+    // ====== 온비드 API 기능 임시 비활성화 ======
+    // TODO: 온비드 API 사용 시 주석 해제
+    */
+/*
     @Scheduled(cron = "0 0 1 * * ?")
     @SchedulerLock(name = "onbidBatchRun", lockAtLeastFor = "PT5M", lockAtMostFor = "PT30M")
     public void scheduledBatchRun() {
@@ -31,7 +36,11 @@ public class AuctionBatchService {
         processBatchData();
         log.info("배치 작업 완료.");
     }
+    *//*
 
+
+    */
+/*
     private void processBatchData() {
         int pageNo = 1;
         int totalCount = 0;
@@ -120,6 +129,8 @@ public class AuctionBatchService {
             return false;
         }
     }
+    *//*
 
 
 }
+*/

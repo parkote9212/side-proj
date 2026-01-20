@@ -24,7 +24,7 @@ import java.util.List;
 public class AuctionItemService {
 
     private final AuctionItemMapper auctionItemMapper;
-    private final OnbidApiService onbidApiService;
+   private final OnbidApiService onbidApiService;
 
     /**
      * FTS 검색 및 페이지네이션을 적용하여 물건 목록을 조회합니다.

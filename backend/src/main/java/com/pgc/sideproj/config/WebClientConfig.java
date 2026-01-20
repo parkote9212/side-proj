@@ -30,6 +30,7 @@ public class WebClientConfig {
     @Value("${kakao.api.baseUrl}")
     private String kakaoBaseUrl;
 
+
     @Bean
     public WebClient onbidWebClient() {
         log.info("OnBid BaseURL: {}", onbidBaseUrl);
@@ -62,6 +63,7 @@ public class WebClientConfig {
                 })
                 .build();
     }
+
 
     /**
      * Kakao API 호출용 WebClient 빈을 생성합니다.

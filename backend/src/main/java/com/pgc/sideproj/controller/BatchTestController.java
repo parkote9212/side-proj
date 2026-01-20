@@ -1,3 +1,4 @@
+/*
 package com.pgc.sideproj.controller;
 
 import com.pgc.sideproj.service.AuctionBatchService;
@@ -7,10 +8,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+*/
+
+// ====== 온비드 API 기능 임시 비활성화 ======
+// TODO: 온비드 API 사용 시 주석 해제
 
 /**
  * Phase 1 배치 작업을 수동으로 트리거하기 위한 임시 테스트 컨트롤러입니다.
  */
+/*
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +30,7 @@ public class BatchTestController {
      * Onbid 배치 파이프라인을 실행합니다.
      *
      * @return 배치 시작 확인 메시지
-     */
+     *//*
 
     @PostMapping("/api/admin/batch/run")
     public ResponseEntity<String> runBatch() {
@@ -41,4 +47,4 @@ public class BatchTestController {
         }
     }
 }
-
+*/
