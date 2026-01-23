@@ -5,6 +5,7 @@ import com.pgc.sideproj.dto.request.UserRegisterRequest;
 import com.pgc.sideproj.dto.response.TokenResponse;
 import com.pgc.sideproj.dto.response.UserResponse;
 import com.pgc.sideproj.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class AuthContorller {
      */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(
-            @RequestBody UserRegisterRequest request
+            @Valid @RequestBody UserRegisterRequest request
     ) {
         UserResponse response = userService.registerUser(request);
         // 201 Created 반환

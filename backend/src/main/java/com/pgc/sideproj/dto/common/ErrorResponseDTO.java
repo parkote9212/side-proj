@@ -3,6 +3,8 @@ package com.pgc.sideproj.dto.common;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class ErrorResponseDTO {
@@ -11,13 +13,15 @@ public class ErrorResponseDTO {
 
     private final String message;
 
-    private final long timestamp;
+    private final LocalDateTime timestamp;
+
+    private final String path;
 
     public static ErrorResponseDTO of(int statusCode, String message){
         return ErrorResponseDTO.builder()
                 .statusCode(statusCode)
                 .message(message)
-                .timestamp(System.currentTimeMillis())
+                .timestamp(LocalDateTime.now())
                 .build();
 
     }

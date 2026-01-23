@@ -1,11 +1,12 @@
 // src/store/savedItemStore.js
 import { create } from 'zustand';
 import { fetchMySavedItems, addSavedItem, deleteSavedItem } from '../api/savedItemApi';
+import { logger } from '../utils/logger';
 
 const useSavedItemStore = create((set) => ({
   // 찜한 아이템의 cltrNo를 배열로 관리 (Set 대신 배열 사용 - 직렬화 가능)
   savedItemIds: [],
-  
+
   // (액션) 1. [최초 로딩] 내 찜 목록 API를 호출해 배열을 채움
   fetchSaved: async () => {
     try {
@@ -14,7 +15,7 @@ const useSavedItemStore = create((set) => ({
       const idArray = savedItems.map(item => item.cltrNo);
       set({ savedItemIds: idArray });
     } catch (error) {
-      console.error("찜 목록 로딩 실패:", error);
+      logger.error("찜 목록 로딩 실패:", error);
       // 로그아웃되었거나 토큰이 만료되면 찜 목록을 비움
       set({ savedItemIds: [] });
     }
@@ -29,7 +30,7 @@ const useSavedItemStore = create((set) => ({
         savedItemIds: [...state.savedItemIds, cltrNo]
       }));
     } catch (error) {
-      console.error("찜하기 실패:", error);
+      logger.error("찜하기 실패:", error);
     }
   },
 
@@ -42,7 +43,7 @@ const useSavedItemStore = create((set) => ({
         savedItemIds: state.savedItemIds.filter(id => id !== cltrNo)
       }));
     } catch (error) {
-      console.error("찜 취소 실패:", error);
+      logger.error("찜 취소 실패:", error);
     }
   }
 }));

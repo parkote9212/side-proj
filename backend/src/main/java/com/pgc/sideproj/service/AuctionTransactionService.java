@@ -68,4 +68,13 @@ public class AuctionTransactionService {
             log.warn("유효한 주소가 없어 Geocoding을 스킵합니다");
         }
     }
+
+    @Transactional
+    public void processSingleItem(OnbidItemDTO item) {
+        AuctionMasterDTO master = dataCleansingService.createMasterFrom(item);
+        AuctionHistoryDTO history = dataCleansingService.createHistoryFrom(item);
+        processGeocoding(master);
+        auctionItemMapper.upsertMaster(master);
+        auctionItemMapper.upsertHistory(history);
+    }
 }

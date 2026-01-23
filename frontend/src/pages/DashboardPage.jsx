@@ -31,7 +31,7 @@ const DashboardPage = () => {
   const [error, setError] = useState(null);
 
 
-  
+
 
   // 2. 데이터 로드
   useEffect(() => {
@@ -88,7 +88,7 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
-        🚀 경매 물건 대시보드 요약
+        경매 물건 대시보드 요약
       </h1>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* --- 1. 지역별 평균 가격 막대 차트 --- */}
@@ -162,10 +162,10 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
                   verticalAlign="middle"
                   formatter={(value, entry) => {
                     const count = entry.payload.count;
-                   const percent = (categoryTotal > 0) 
-                            ? ((count / categoryTotal) * 100).toFixed(0) 
+                   const percent = (categoryTotal > 0)
+                            ? ((count / categoryTotal) * 100).toFixed(0)
                             : 0;
-                            
+
                           return `${value} (${percent}%)`;
                   }}
                 />

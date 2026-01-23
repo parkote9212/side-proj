@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/authApi';
 import useAuthStore from '../store/authStore';
+import { logger } from '../utils/logger';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(null);
-    
+
     const navigate = useNavigate();
     // Zustand 스토어에서 setToken 액션을 가져옵니다.
     const setToken = useAuthStore((state) => state.setToken);
@@ -18,15 +19,15 @@ const LoginPage = () => {
 
         try {
             const response = await loginUser({ email, password });
-            
+
             // 1. Zustand 스토어와 LocalStorage에 토큰 저장
-            setToken(response.accessToken); 
-            
+            setToken(response.accessToken);
+
             // 2. 메인 페이지로 이동
-            navigate("/"); 
+            navigate("/");
 
         } catch (error) {
-            console.error("로그인 실패:", error.response?.data || error);
+            logger.error("로그인 실패:", error.response?.data || error);
             // 백엔드에서 보낸 구체적인 오류 메시지를 표시
             setLoginError(error.response?.data?.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
         }
@@ -36,7 +37,7 @@ const LoginPage = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
             <div className="p-8 bg-white shadow-xl rounded-lg w-full max-w-md">
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">로그인</h1>
-                
+
                 {loginError && (
                     <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                         {loginError}

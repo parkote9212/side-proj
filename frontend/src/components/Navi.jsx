@@ -18,11 +18,11 @@ const Navi = () => {
         <header className="bg-indigo-600 text-white shadow-lg">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    
+
                     {/* --- 로고/메인 링크 --- */}
                     <div className="flex-shrink-0">
                         <Link to="/" className="text-2xl font-extrabold tracking-wider hover:text-indigo-200 transition duration-150">
-                            옥션 맵 🗺️
+                            옥션 맵
                         </Link>
                     </div>
 
@@ -30,7 +30,7 @@ const Navi = () => {
                     <div className="flex space-x-4">
                         <Link to="/" className="nav-link">지도/목록</Link>
                         <Link to="/dashboard" className="nav-link">통계 대시보드</Link>
-                        
+
                         {/* 로그인 상태에 따른 마이페이지 링크 */}
                         {token && (
                             <Link to="/mypage" className="nav-link text-yellow-300">찜 목록</Link>
@@ -40,7 +40,7 @@ const Navi = () => {
                     {/* --- 인증 버튼 --- */}
                     <div className="flex items-center gap-2">
                         {token ? (
-                            <button 
+                            <button
                                 onClick={handleLogout}
                                 className="px-3 py-1 bg-red-500 rounded-md text-sm font-medium hover:bg-red-600 transition"
                             >
@@ -48,16 +48,16 @@ const Navi = () => {
                             </button>
                         ) : (
                           <>
-                                <Link 
-                                    to="/login" 
+                                <Link
+                                    to="/login"
                                     className="px-3 py-1 bg-green-500 rounded-md text-sm font-medium hover:bg-green-600 transition"
                                 >
                                     로그인
                                 </Link>
-                                
-                                {/* 💡 추가된 회원가입 버튼 */}
-                                <Link 
-                                    to="/register" 
+
+                                {/* 추가된 회원가입 버튼 */}
+                                <Link
+                                    to="/register"
                                     className="px-3 py-1 bg-indigo-400 rounded-md text-sm font-medium hover:bg-indigo-500 transition"
                                 >
                                     회원가입
@@ -68,7 +68,7 @@ const Navi = () => {
 
                 </div>
             </div>
-            
+
             {/* Tailwind CSS를 위한 임시 스타일 (Navi.jsx 내부에 정의) */}
             <style jsx>{`
                 .nav-link {

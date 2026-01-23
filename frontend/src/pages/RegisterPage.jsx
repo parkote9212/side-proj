@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../api/authApi';
+import { logger } from '../utils/logger';
 
 const RegisterPage = () => {
     const [email, setEmail] = useState('');
@@ -15,12 +16,12 @@ const RegisterPage = () => {
 
         try {
             await registerUser({ email, password, nickname });
-            
+
             alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
-            navigate("/login"); 
+            navigate("/login");
 
         } catch (error) {
-            console.error("회원가입 실패:", error.response?.data || error);
+            logger.error("회원가입 실패:", error.response?.data || error);
             setRegError(error.response?.data?.message || "회원가입에 실패했습니다. 입력 정보를 확인해주세요.");
         }
     };
@@ -29,7 +30,7 @@ const RegisterPage = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
             <div className="p-8 bg-white shadow-xl rounded-lg w-full max-w-md">
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">회원가입</h1>
-                
+
                 {regError && (
                     <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                         {regError}

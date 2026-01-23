@@ -2,6 +2,7 @@ package com.pgc.sideproj.controller;
 
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
 import com.pgc.sideproj.dto.db.UserDTO;
+import com.pgc.sideproj.exception.custom.UserNotFoundException;
 import com.pgc.sideproj.mapper.UserMapper;
 import com.pgc.sideproj.service.SavedItemService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class SavedItemController {
     // ... getUserId 헬퍼 메서드는 변경 없음 ...
     private Long getUserId(String email) {
         UserDTO user = userMapper.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("인증된 사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserNotFoundException("email", email));
         return user.getId();
     }
 

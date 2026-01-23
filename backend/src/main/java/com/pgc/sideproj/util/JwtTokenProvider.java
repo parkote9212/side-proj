@@ -1,20 +1,27 @@
 package com.pgc.sideproj.util;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -30,7 +37,7 @@ public class JwtTokenProvider {
 
     /**
      * @PostConstruct: 필드 주입이 완료된 후, 초기화 작업을 수행합니다.
-     * 문자열 타입의 비밀키를 서명에 사용할 Key 객체로 변환합니다.
+     *                 문자열 타입의 비밀키를 서명에 사용할 Key 객체로 변환합니다.
      */
 
     @PostConstruct
@@ -52,7 +59,8 @@ public class JwtTokenProvider {
             log.info("Key 객체 생성 성공 (this.key is not null)");
         } catch (Exception e) {
             log.error("Key 객체 생성 중 치명적 오류 발생", e);
-            // e.g., 키 길이가 너무 짧으면 WeakKeyException 발생
+            // 키 길이가 너무 짧거나 잘못된 형식이면 예외 발생
+            throw new IllegalStateException("JWT Key 초기화 실패: " + e.getMessage(), e);
         }
     }
 
@@ -94,12 +102,11 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        //권한 정보 추출("ROLE_USER")
+        // 권한 정보 추출("ROLE_USER")
         String roleString = claims.get("role", String.class);
 
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + roleString)
-        );
+                new SimpleGrantedAuthority("ROLE_" + roleString));
 
         // Spring Security용 Authentication 객체 생성
         return new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities);
@@ -128,5 +135,5 @@ public class JwtTokenProvider {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
-        }
     }
+}

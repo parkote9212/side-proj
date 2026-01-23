@@ -5,6 +5,8 @@ import com.pgc.sideproj.dto.request.UserLoginRequest;
 import com.pgc.sideproj.dto.request.UserRegisterRequest;
 import com.pgc.sideproj.dto.response.TokenResponse;
 import com.pgc.sideproj.dto.response.UserResponse;
+import com.pgc.sideproj.exception.custom.BadCredentialsException;
+import com.pgc.sideproj.exception.custom.DuplicateEmailException;
 import com.pgc.sideproj.mapper.UserMapper;
 import com.pgc.sideproj.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class UserService {
     public UserResponse registerUser(UserRegisterRequest request){
         //이메일 중복검증
         if(userMapper.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new DuplicateEmailException(request.getEmail());
         }
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -64,16 +66,14 @@ public class UserService {
         Optional<UserDTO> userOptional = userMapper.findByEmail(request.getEmail());
 
         if (userOptional.isEmpty()) {
-            // 커스텀 예외로 "사용자를 찾을 수 없음" 처리 필요
-            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException();
         }
 
         UserDTO user = userOptional.get();
 
         // 2. 비밀번호 검증 (입력된 평문 비밀번호와 DB의 해시된 비밀번호 비교)
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // 커스텀 예외로 "비밀번호 불일치" 처리 필요
-            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException();
         }
 
         // 3. 검증 성공 시 JWT 토큰 생성
@@ -92,7 +92,7 @@ public class UserService {
      */
     public List<UserResponse> getAllUsers(){
         List<UserDTO> users = userMapper.findAll();
-        
+
         return users.stream()
                 .map(this::convertToUserResponse)
                 .collect(Collectors.toList());

@@ -5,12 +5,10 @@ import axios from "axios";
 // (Vite 프록시를 사용한다면 baseURL을 '/api'와 같이 상대 경로로 설정할 수도 있습니다.)
 
 const instance = axios.create({
-    // 이전에 'http://localhost:8080/api/v1' 이었다면, 
-    // 이제는 백엔드 서버의 포트와 프로토콜을 제외한 경로만 남깁니다.
-    // 이렇게 하면 요청이 현재 Vite 서버 (예: localhost:5173)로 전송됩니다.
-    baseURL: '/api/v1', 
-    
-    timeout: 10000, 
+    // 환경 변수에서 API Base URL을 읽어오고, 없으면 기본값 사용
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -35,6 +33,41 @@ instance.interceptors.request.use(
   },
   (error) => {
     // 요청 오류가 발생하면 (예: 네트워크 오류 등)
+    return Promise.reject(error);
+  }
+);
+
+/**
+ * 응답 인터셉터 설정
+ * 서버로부터 받은 응답을 처리하기 전에 실행됩니다.
+ */
+instance.interceptors.response.use(
+  (response) => {
+    // 정상 응답은 그대로 반환
+    return response;
+  },
+  (error) => {
+    // 401 Unauthorized: 토큰 만료 또는 인증 실패
+    if (error.response?.status === 401) {
+      // 토큰 제거
+      localStorage.removeItem("accessToken");
+
+      // Zustand 스토어에서도 토큰 제거 (순환 참조 방지를 위해 직접 처리)
+      // 로그인 페이지로 리다이렉트
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+
+    // 403 Forbidden: 권한 없음
+    if (error.response?.status === 403) {
+      // 필요시 권한 오류 처리
+      // logger는 순환 참조 방지를 위해 여기서는 사용하지 않음
+      if (import.meta.env.DEV) {
+        console.error("접근 권한이 없습니다.");
+      }
+    }
+
     return Promise.reject(error);
   }
 );

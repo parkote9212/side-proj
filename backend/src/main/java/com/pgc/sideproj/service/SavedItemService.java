@@ -2,6 +2,7 @@ package com.pgc.sideproj.service;
 
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
 import com.pgc.sideproj.dto.db.SavedItemDTO;
+import com.pgc.sideproj.exception.custom.DuplicateSavedItemException;
 import com.pgc.sideproj.mapper.SavedItemMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,7 @@ public class SavedItemService {
     @Transactional
     public void addSavedItem(Long userId, String itemId) {
         if (savedItemMapper.findByUserIdAndItemId(userId, itemId).isPresent()) {
-            throw new RuntimeException("이미 찜 목록에 추가된 물건입니다.");
+            throw new DuplicateSavedItemException(userId, itemId);
         }
         SavedItemDTO item = new SavedItemDTO();
         item.setUserId(userId);

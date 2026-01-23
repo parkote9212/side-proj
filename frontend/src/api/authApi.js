@@ -1,4 +1,5 @@
 import api from './axiosInstance';
+import { logger } from '../utils/logger';
 
 /**
  * 사용자 회원가입
@@ -11,21 +12,21 @@ import api from './axiosInstance';
  */
 export async function registerUser({ email, password, nickname }) {
     try {
-        const response = await api.post("/auth/register", { 
-            email, 
-            password, 
-            nickname 
+        const response = await api.post("/auth/register", {
+            email,
+            password,
+            nickname
         });
-        
+
         // 토큰이 반환된 경우 저장
         if (response.data?.accessToken) {
             localStorage.setItem('accessToken', response.data.accessToken);
         }
-        
+
         return response.data;
     } catch (error) {
         const errorMsg = error.response?.data?.message || error.message || '회원가입 중 오류가 발생했습니다.';
-        console.error('[registerUser Error]', errorMsg);
+        logger.error('[registerUser Error]', errorMsg);
         throw new Error(errorMsg);
     }
 }
@@ -40,20 +41,20 @@ export async function registerUser({ email, password, nickname }) {
  */
 export async function loginUser({ email, password }) {
     try {
-        const response = await api.post("/auth/login", { 
-            email, 
-            password 
+        const response = await api.post("/auth/login", {
+            email,
+            password
         });
-        
+
         // JWT 토큰 저장 (axiosInstance에서 자동으로 Authorization 헤더 추가됨)
         if (response.data?.accessToken) {
             localStorage.setItem('accessToken', response.data.accessToken);
         }
-        
+
         return response.data;
     } catch (error) {
         const errorMsg = error.response?.data?.message || error.message || '로그인 중 오류가 발생했습니다.';
-        console.error('[loginUser Error]', errorMsg);
+        logger.error('[loginUser Error]', errorMsg);
         throw new Error(errorMsg);
     }
 }

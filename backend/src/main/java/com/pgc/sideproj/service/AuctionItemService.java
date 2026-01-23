@@ -10,14 +10,17 @@ import com.pgc.sideproj.dto.response.AuctionItemDetailDTO;
 import com.pgc.sideproj.dto.response.AuctionItemSummaryDTO;
 import com.pgc.sideproj.dto.response.BasicInfoResponseDTO;
 import com.pgc.sideproj.dto.response.PageResponseDTO;
+import com.pgc.sideproj.exception.custom.ResourceNotFoundException;
 import com.pgc.sideproj.mapper.AuctionItemMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true) // C(UD)가 없으므로 readOnly = true
@@ -35,23 +38,40 @@ public class AuctionItemService {
      * @return 페이지네이션 결과 DTO (PageResponseDTO)
      */
     public PageResponseDTO<AuctionItemSummaryDTO> getItems(String keyword, String region, int page, int size) {
+        log.info("Searching items - keyword: {}, region: {}, page: {}, size: {}",
+                keyword, region, page, size);
 
-        // 1. offset 계산
-        int offset = (page - 1) * size;
+        try {
+            // 1. offset 계산
+            int offset = (page - 1) * size;
 
-        // 2. DB에서 총 개수 조회 (FTS 검색어, region 포함)
-        int totalCount = auctionItemMapper.countItems(keyword, region);
+            // 2. DB에서 총 개수 조회 (FTS 검색어, region 포함)
+            int totalCount = auctionItemMapper.countItems(keyword, region);
 
-        // 3. DB에서 데이터 목록 조회 (FTS 검색어, region, 페이지네이션 포함)
-        List<AuctionItemSummaryDTO> items = auctionItemMapper.findItems(keyword, region, offset, size);
+            if (totalCount == 0) {
+                log.warn("No items found - keyword: {}, region: {}", keyword, region);
+            }
 
-        // 4. PageResponseDTO로 래핑하여 반환
-        return new PageResponseDTO<>(items, page, size, totalCount);
+            // 3. DB에서 데이터 목록 조회 (FTS 검색어, region, 페이지네이션 포함)
+            List<AuctionItemSummaryDTO> items = auctionItemMapper.findItems(keyword, region, offset, size);
+
+            log.debug("Found {} items out of {} total", items.size(), totalCount);
+
+            // 4. PageResponseDTO로 래핑하여 반환
+            return new PageResponseDTO<>(items, page, size, totalCount);
+        } catch (Exception e) {
+            log.error("Error while searching items - keyword: {}, region: {}",
+                    keyword, region, e);
+            throw e;
+        }
     }
 
     public AuctionItemDetailDTO getItemDetail(String cltrNo) {
-        AuctionMasterDTO master = auctionItemMapper.findMasterByCltrNo(cltrNo)
-                .orElseThrow(() -> new RuntimeException("물건 정보를 찾을 수 없습니다."));
+        log.info("Fetching item detail - cltrNo: {}", cltrNo);
+
+        try {
+            AuctionMasterDTO master = auctionItemMapper.findMasterByCltrNo(cltrNo)
+                    .orElseThrow(() -> new ResourceNotFoundException("AuctionMaster", "cltrNo", cltrNo));
 
         List<AuctionHistoryDTO> history = auctionItemMapper.findHistoryByCltrNo(cltrNo);
 
@@ -78,12 +98,18 @@ public class AuctionItemService {
                     .build();
         }
 
-        return AuctionItemDetailDTO.builder()
-                .masterInfo(master)
-                .priceHistory(history)
-                .basicInfo(responseBasicInfo)
-                .fileList(fileList)
-                .build();
+            AuctionItemDetailDTO detail = AuctionItemDetailDTO.builder()
+                    .masterInfo(master)
+                    .priceHistory(history)
+                    .basicInfo(responseBasicInfo)
+                    .fileList(fileList)
+                    .build();
 
+            log.debug("Successfully fetched item detail - cltrNo: {}", cltrNo);
+            return detail;
+        } catch (Exception e) {
+            log.error("Error while fetching item detail - cltrNo: {}", cltrNo, e);
+            throw e;
+        }
     }
 }
