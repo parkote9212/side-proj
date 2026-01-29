@@ -1,23 +1,39 @@
-// src/api/savedItemApi.js
 import api from './axiosInstance';
 
-// 1. 내 찜 목록(ID) 조회 API
+/**
+ * 내 찜 목록 조회 API
+ * 
+ * GET /api/v1/saved-items
+ * 
+ * @returns {Promise<Array>} AuctionMasterDTO 배열
+ */
 export const fetchMySavedItems = async () => {
-  // 백엔드의 GET /api/v1/saved-items 호출
   const response = await api.get('/saved-items');
-  return response.data; // AuctionMasterDTO[] 반환
+  return response.data;
 };
 
-// 2. 찜하기 API
+/**
+ * 찜하기 API
+ * 
+ * POST /api/v1/saved-items/{item_id}
+ * 
+ * @param {string} cltrNo - 물건 번호
+ * @returns {Promise<Object>} 응답 데이터
+ */
 export const addSavedItem = async (cltrNo) => {
-  // 백엔드의 POST /api/v1/saved-items/{item_id} 호출
   const response = await api.post(`/saved-items/${cltrNo}`);
   return response.data;
 };
 
-// 3. 찜 취소 API
+/**
+ * 찜 취소 API
+ * 
+ * DELETE /api/v1/saved-items/{item_id}
+ * 
+ * @param {string} cltrNo - 물건 번호
+ * @returns {Promise<Object>} 응답 데이터
+ */
 export const deleteSavedItem = async (cltrNo) => {
-  // 백엔드의 DELETE /api/v1/saved-items/{item_id} 호출
   const response = await api.delete(`/saved-items/${cltrNo}`);
   return response.data;
 };

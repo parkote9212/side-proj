@@ -2,6 +2,18 @@ import React from "react";
 import PropTypes from "prop-types";
 import { BarLoader } from "react-spinners";
 
+/**
+ * 물건 상세 정보 모달 컴포넌트
+ * 
+ * 물건의 상세 정보, 담당자 정보, 첨부 파일, 가격 변동 이력을 표시합니다.
+ * 
+ * @component
+ * @param {Object} props - 컴포넌트 props
+ * @param {Object} props.item - 물건 상세 정보
+ * @param {boolean} props.isLoading - 로딩 상태
+ * @param {Function} props.onClose - 모달 닫기 핸들러
+ * @returns {JSX.Element|null} 모달 컴포넌트 또는 null
+ */
 function ItemDetailModal({ item, isLoading, onClose }) {
   if (!item) return null;
 
@@ -45,7 +57,6 @@ function ItemDetailModal({ item, isLoading, onClose }) {
           </div>
         )}
 
-        {/* 첨부 파일 목록 */}
         {item.fileList && item.fileList.length > 0 && (
           <div className="mb-4">
             <h4 className="text-lg font-semibold mb-2">첨부 파일</h4>

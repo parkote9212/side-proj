@@ -1,34 +1,39 @@
-// src/components/AdminRoute.jsx
 import React from 'react';
 import useAuthStore from '../store/authStore';
 import { Navigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // (설치 필요: npm install jwt-decode)
+import { jwtDecode } from 'jwt-decode';
 import { logger } from '../utils/logger';
 
+/**
+ * 관리자 라우트 보호 컴포넌트
+ * 
+ * ADMIN 권한이 있는 사용자만 접근할 수 있도록 보호합니다.
+ * 
+ * @component
+ * @param {Object} props - 컴포넌트 props
+ * @param {React.ReactNode} props.children - 보호할 컴포넌트
+ * @returns {JSX.Element} 관리자 페이지 또는 리다이렉트
+ */
 const AdminRoute = ({ children }) => {
   const { token } = useAuthStore((state) => state);
 
   if (!token) {
-    // 1. 토큰이 없으면 로그인 페이지로
     return <Navigate to="/login" replace />;
   }
 
   try {
-    // 2. 토큰을 복호화(decode)하여 role 확인
     const decoded = jwtDecode(token);
     const role = decoded.role;
 
     if (role !== 'ADMIN') {
-      // 3. ADMIN이 아니면 메인 페이지로
       return <Navigate to="/" replace />;
     }
 
-    // 4. ADMIN이 맞으면 자식 컴포넌트(AdminPage) 렌더링
     return children;
 
   } catch (e) {
     logger.error("JWT Decode Error", e);
-    return <Navigate to="/login" replace />; // 비정상 토큰 시 로그인
+    return <Navigate to="/login" replace />;
   }
 };
 

@@ -1,6 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+/**
+ * 지역 목록 상수
+ * @constant {Array<{name: string, value: string}>}
+ */
 const REGIONS = [
   { name: "전체", value: "" },
   { name: "서울특별시", value: "서울특별시" },
@@ -22,6 +26,20 @@ const REGIONS = [
   { name: "제주특별자치도", value: "제주특별자치도" },
 ];
 
+/**
+ * 검색 필터 컴포넌트
+ * 
+ * 지역 선택 및 키워드 검색 기능을 제공합니다.
+ * 
+ * @component
+ * @param {Object} props - 컴포넌트 props
+ * @param {string} props.keyword - 검색 키워드
+ * @param {Function} props.setKeyword - 키워드 설정 함수
+ * @param {string} props.region - 선택된 지역
+ * @param {Function} props.setRegion - 지역 설정 함수
+ * @param {Function} props.onSearch - 검색 실행 함수
+ * @returns {JSX.Element} 검색 필터 컴포넌트
+ */
 function SearchFilter({ keyword, setKeyword, region, setRegion, onSearch }) {
   return (
     <div className="mb-4 space-y-2">

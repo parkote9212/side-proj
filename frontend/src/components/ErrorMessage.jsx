@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import React from "react";
 
+/**
+ * 에러 메시지 컴포넌트
+ * 
+ * 화면 상단에 에러 메시지를 표시합니다.
+ * 
+ * @component
+ * @param {Object} props - 컴포넌트 props
+ * @param {string} props.message - 에러 메시지
+ * @param {Function} props.onClose - 닫기 핸들러
+ * @returns {JSX.Element|null} 에러 메시지 컴포넌트 또는 null
+ */
 function ErrorMessage({ message, onClose }) {
   if (!message) return null;
 

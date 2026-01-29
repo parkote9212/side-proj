@@ -4,16 +4,26 @@ import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
 import { fetchSavedItems } from "../api/myPageApi";
 
+/**
+ * 마이페이지 컴포넌트
+ * 
+ * 사용자의 찜 목록을 표시합니다.
+ * 
+ * @component
+ * @returns {JSX.Element} 마이페이지
+ */
 const MyPage = () => {
   const [savedItems, setSavedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const token = useAuthStore((state) => state.token); // 토큰 존재 여부 확인용
+  const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
 
+  /**
+   * 찜 목록 로드 및 인증 체크
+   */
   useEffect(() => {
-    // 토큰이 없으면 로그인 페이지로 리다이렉트 (프론트엔드 보호)
     if (!token) {
       alert("로그인이 필요합니다.");
       navigate("/login");
@@ -25,7 +35,6 @@ const MyPage = () => {
         const items = await fetchSavedItems();
         setSavedItems(items);
       } catch (err) {
-        // 401/403 오류는 JWT 만료/무효화일 가능성이 높음
         if (
           err.response &&
           (err.response.status === 401 || err.response.status === 403)
@@ -57,17 +66,18 @@ const MyPage = () => {
       <div className="p-8 text-center text-red-600">
         <h1 className="text-xl font-bold">오류</h1>
         <p>{error}</p>
-        {/* 401/403 에러 시 로그아웃 처리 및 이동 로직 추가 가능 */}
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white shadow-xl min-h-screen">
+      {/* 페이지 제목 영역 */}
       <h1 className="text-3xl font-bold mb-6 border-b pb-2 text-gray-800">
         💖 내 찜 목록
       </h1>
 
+      {/* 찜 목록 영역 */}
       {savedItems.length === 0 ? (
         <p className="text-center text-gray-500 py-10 border border-dashed rounded-md">
           찜한 물건이 아직 없습니다.
@@ -79,13 +89,14 @@ const MyPage = () => {
               key={item.cltrNo}
               className="p-4 border border-gray-200 rounded-lg flex justify-between items-center hover:bg-gray-50"
             >
+              {/* 물건 정보 영역 */}
               <div>
                 <p className="text-lg font-semibold text-indigo-700">
                   {item.ctgrFullNm}
                 </p>
                 <p className="text-sm text-gray-600">{item.clnLdnmAdrs}</p>
               </div>
-              {/* 찜 취소 버튼 등 추가 가능 */}
+              {/* 찜 취소 버튼 영역 */}
               <button className="text-red-500 hover:text-red-700 text-sm">
                 찜 취소
               </button>

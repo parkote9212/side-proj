@@ -12,9 +12,12 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { ClipLoader } from "react-spinners"; // 로딩 스피너 임포트
+import { ClipLoader } from "react-spinners";
 
-// 파이 차트의 색상 배열 정의
+/**
+ * 파이 차트에 사용할 색상 배열
+ * @constant {string[]}
+ */
 const PIE_CHART_COLORS = [
   "#0088FE",
   "#00C49F",
@@ -24,16 +27,22 @@ const PIE_CHART_COLORS = [
   "#82ca9d",
 ];
 
+/**
+ * 통계 대시보드 페이지 컴포넌트
+ * 
+ * 지역별 평균 가격 막대 차트와 카테고리별 물건 개수 파이 차트를 표시합니다.
+ * 
+ * @component
+ * @returns {JSX.Element} 대시보드 페이지
+ */
 const DashboardPage = () => {
-  // 1. 상태 정의
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
-
-  // 2. 데이터 로드
+  /**
+   * 통계 데이터를 로드하는 useEffect
+   */
   useEffect(() => {
     const loadStats = async () => {
       try {
@@ -49,7 +58,6 @@ const DashboardPage = () => {
     loadStats();
   }, []);
 
-  // 로딩 UI
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -59,7 +67,6 @@ const DashboardPage = () => {
     );
   }
 
-  // 에러 UI
   if (error) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -68,7 +75,6 @@ const DashboardPage = () => {
     );
   }
 
-  // 데이터 없음 UI
   if (
     !stats ||
     (!stats.regionAvgPrices?.length && !stats.categoryCounts?.length)
@@ -80,18 +86,24 @@ const DashboardPage = () => {
     );
   }
 
-  // stats.categoryCounts가 존재하고, 데이터가 있을 때만 계산합니다.
-const categoryTotal = (stats?.categoryCounts?.length > 0)
+  /**
+   * 카테고리별 총 물건 개수 계산
+   * @type {number}
+   */
+  const categoryTotal = (stats?.categoryCounts?.length > 0)
   ? stats.categoryCounts.reduce((sum, entry) => sum + entry.count, 0)
   : 0;
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gray-50">
+      {/* 페이지 제목 영역 */}
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
         경매 물건 대시보드 요약
       </h1>
+
+      {/* 차트 영역 */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* --- 1. 지역별 평균 가격 막대 차트 --- */}
+        {/* 지역별 평균 가격 막대 차트 영역 */}
         <div className="bg-white p-6 rounded-lg shadow-xl">
           <h2 className="text-xl font-semibold mb-4 text-center">
             지역별 평균 최저 입찰가 (단위: 원)
@@ -102,7 +114,6 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
                 data={stats.regionAvgPrices}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
-                {/* X축: 지역명 (회전 적용하여 긴 이름 처리) */}
                 <XAxis
                   dataKey="regionName"
                   angle={-45}
@@ -112,11 +123,9 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
                 />
                 <YAxis
                   dataKey="avgPrice"
-                  // Y축 값 포맷 (선택 사항: 숫자를 보기 좋게 변환)
                   tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 />
                 <Tooltip
-                  // Tooltip 값 포맷 (선택 사항: 원화 포맷)
                   formatter={(value) => `${value.toLocaleString()}원`}
                 />
                 <Legend />
@@ -130,7 +139,7 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
           )}
         </div>
 
-        {/* --- 2. 카테고리별 물건 개수 파이 차트 --- */}
+        {/* 카테고리별 물건 개수 파이 차트 영역 */}
         <div className="bg-white p-6 rounded-lg shadow-xl">
           <h2 className="text-xl font-semibold mb-4 text-center">
             카테고리별 물건 개수
@@ -142,12 +151,11 @@ const categoryTotal = (stats?.categoryCounts?.length > 0)
                   data={stats.categoryCounts}
                   dataKey="count"
                   nameKey="categoryName"
-                  cx="50%" // 중심 X 좌표
-                  cy="50%" // 중심 Y 좌표
-                  outerRadius={120} // 반지름
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
                   fill="#8884d8"
                 >
-                  {/* 각 셀에 색상 적용 */}
                   {stats.categoryCounts.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}

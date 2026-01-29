@@ -1,17 +1,31 @@
-// src/pages/AdminPage.jsx
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import api from "../api/axiosInstance"; // Axios 인스턴스
+import api from "../api/axiosInstance";
 
-// Admin API 호출 함수
+/**
+ * 관리자 배치 실행 API 호출
+ * @returns {Promise} 배치 실행 결과
+ */
 const runAdminBatch = () => {
-  return api.post("/admin/batch/run"); // 2단계에서 만든 API
+  return api.post("/admin/batch/run");
 };
 
+/**
+ * 전체 사용자 목록 조회 API 호출
+ * @returns {Promise} 사용자 목록
+ */
 const fetchAllUsers = () => {
   return api.get("/admin/users");
 };
 
+/**
+ * 관리자 페이지 컴포넌트
+ * 
+ * 수동 배치 실행 및 회원 목록 조회 기능을 제공합니다.
+ * 
+ * @component
+ * @returns {JSX.Element} 관리자 페이지
+ */
 const AdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -20,6 +34,9 @@ const AdminPage = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
 
+  /**
+   * 배치 실행 핸들러
+   */
   const handleBatchRun = async () => {
     if (!window.confirm("정말로 수동 배치를 실행하시겠습니까?")) {
       return;
@@ -42,7 +59,7 @@ const AdminPage = () => {
     const loadUsers = async () => {
       try {
         const response = await fetchAllUsers();
-        setUsers(response.data); // ◀ (List<UserResponse> 저장)
+        setUsers(response.data);
       } catch (err) {
         setUserError(
           err.response?.data?.message || err.message || "회원 목록 로딩 실패"
@@ -56,8 +73,10 @@ const AdminPage = () => {
 
   return (
     <div className="p-8 max-w-lg mx-auto mt-10 shadow-lg rounded-lg">
+      {/* 페이지 제목 영역 */}
       <h1 className="text-2xl font-bold mb-6">관리자 페이지</h1>
 
+      {/* 배치 실행 영역 */}
       <div className="border-t pt-4">
         <h2 className="text-lg font-semibold mb-3">수동 배치 실행</h2>
         <button
@@ -72,6 +91,7 @@ const AdminPage = () => {
           )}
         </button>
 
+        {/* 배치 실행 결과 메시지 영역 */}
         {message && (
           <p
             className={`mt-4 text-sm ${
@@ -83,6 +103,7 @@ const AdminPage = () => {
         )}
       </div>
 
+      {/* 회원 목록 영역 */}
       <div className="border-t pt-4 mt-8">
         <h2 className="text-lg font-semibold mb-3">
           회원 목록 (총 {users.length}명)

@@ -13,8 +13,15 @@ import { logger } from "../utils/logger";
 
 const KAKAO_APP_KEY = import.meta.env.VITE_KAKAO_MAP_JS_KEY;
 
+/**
+ * 메인 페이지 컴포넌트
+ * 
+ * 경매 물건 목록과 지도를 표시하며, 검색 및 필터링 기능을 제공합니다.
+ * 
+ * @component
+ * @returns {JSX.Element} 메인 페이지
+ */
 const MainPage = () => {
-  // ===== 모든 useState 선언 (최상단) =====
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
@@ -25,28 +32,27 @@ const MainPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.978 });
 
-  // 필터용 useState
   const [inputKeyword, setInputKeyword] = useState("");
   const [activeKeyword, setActiveKeyword] = useState("");
   const [activeRegion, setActiveRegion] = useState("");
 
-  // ===== Kakao 지도 로더 =====
   const { loading: _kakaoLoading, error: kakaoError } = useKakaoLoader({
     appkey: KAKAO_APP_KEY,
     libraries: ["services", "clusterer"],
   });
 
-  // ===== Zustand 스토어 (개별 selector로 메모이제이션) =====
   const token = useAuthStore((state) => state.token);
   const savedItemIds = useSavedItemStore((state) => state.savedItemIds);
   const fetchSaved = useSavedItemStore((state) => state.fetchSaved);
   const addSaved = useSavedItemStore((state) => state.addSaved);
   const removeSaved = useSavedItemStore((state) => state.removeSaved);
 
-  // ===== useRef로 초기 로드 방지 (React 18 Strict Mode 대응) =====
   const hasRunRef = useRef(false);
 
-  // ===== 메모이제이션된 핸들러 =====
+  /**
+   * 물건 클릭 핸들러
+   * @param {string} cltrNo - 물건 번호
+   */
   const handleItemClick = useCallback(
     async (cltrNo) => {
       setIsDetailLoading(true);
@@ -67,7 +73,6 @@ const MainPage = () => {
               e.message ||
               "상세 정보를 불러오는데 실패했습니다.";
         setDetailError(errorMessage);
-        // 5초 후 자동으로 에러 메시지 제거
         setTimeout(() => setDetailError(null), 5000);
       } finally {
         setIsDetailLoading(false);
@@ -76,16 +81,28 @@ const MainPage = () => {
     []
   );
 
+  /**
+   * 검색 핸들러
+   */
   const handleSearch = useCallback(() => {
     setCurrentPage(1);
     setActiveKeyword(inputKeyword);
   }, [inputKeyword]);
 
+  /**
+   * 지역 변경 핸들러
+   * @param {Event} e - 이벤트 객체
+   */
   const handleRegionChange = useCallback((e) => {
     setCurrentPage(1);
     setActiveRegion(e.target.value);
   }, []);
 
+  /**
+   * 찜하기/찜 취소 토글 핸들러
+   * @param {Event} e - 이벤트 객체
+   * @param {string} cltrNo - 물건 번호
+   */
   const handleSaveToggle = useCallback(
     (e, cltrNo) => {
       e.stopPropagation();
@@ -107,7 +124,9 @@ const MainPage = () => {
     [token, savedItemIds, removeSaved, addSaved]
   );
 
-  // ===== useEffect: 로그인 시 찜 목록 1회 로드 =====
+  /**
+   * 로그인 시 찜 목록 로드
+   */
   useEffect(() => {
     if (token && !hasRunRef.current) {
       fetchSaved();
@@ -118,7 +137,9 @@ const MainPage = () => {
     }
   }, [token, fetchSaved]);
 
-  // ===== useEffect: 물건 목록 로드 =====
+  /**
+   * 물건 목록 로드
+   */
   useEffect(() => {
     const loadItems = async () => {
       try {
@@ -156,10 +177,8 @@ const MainPage = () => {
     loadItems();
   }, [currentPage, activeKeyword, activeRegion]);
 
-  // ===== 메모이제이션된 값들 =====
   const memoizedItems = useMemo(() => items, [items]);
 
-  // ===== 에러 처리 UI =====
   if (kakaoError) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -181,7 +200,7 @@ const MainPage = () => {
 
   return (
     <div className="max-w-[1920px] mx-auto flex h-screen p-4 gap-4 bg-white">
-      {/* 에러 메시지 */}
+      {/* 에러 메시지 영역 */}
       {error && (
         <ErrorMessage
           message={error}
@@ -202,13 +221,14 @@ const MainPage = () => {
         onItemClick={handleItemClick}
       />
 
-      {/* 목록 영역 - 1/3 너비 */}
+      {/* 물건 목록 영역 */}
       <div className="w-1/3 max-w-[640px] p-4 bg-white shadow rounded-lg border flex flex-col">
+        {/* 목록 제목 */}
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
           경매 물건 목록 ({pageInfo.totalCount || 0}개)
         </h2>
 
-        {/* 필터링 및 검색 UI */}
+        {/* 검색 필터 영역 */}
         <SearchFilter
           keyword={inputKeyword}
           setKeyword={setInputKeyword}
@@ -217,6 +237,7 @@ const MainPage = () => {
           onSearch={handleSearch}
         />
 
+        {/* 물건 카드 목록 영역 */}
         <div className="flex-grow overflow-y-auto">
           {loading ? (
             <div className="flex justify-center items-center h-full">
@@ -245,8 +266,8 @@ const MainPage = () => {
           )}
         </div>
 
+        {/* 페이지네이션 영역 */}
         <div className="mt-auto pt-4">
-          {/* 페이지네이션 UI */}
           {pageInfo.totalPage > 1 && (
             <div className="flex justify-center items-center space-x-2">
               <button
@@ -297,7 +318,7 @@ const MainPage = () => {
         </div>
       </div>
 
-      {/* 상세 정보 모달 */}
+      {/* 상세 정보 모달 영역 */}
       <ItemDetailModal
         item={selectedItem}
         isLoading={isDetailLoading}
