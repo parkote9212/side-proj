@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(
             Exception e, HttpServletRequest request) {
-        // 에러로그
-        log.error("[Global Error] 처리되지 않은 예외 발생", e);
+        // 에러 로그
+        log.error("[전역 오류] 처리되지 않은 예외 발생", e);
 
         // 클라이언트에게 구체적인 서버 내부 정보 노출방지
         int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleDatabaseError(
             DataAccessException ex, HttpServletRequest request) {
         // 프로덕션에서는 상세한 DB 에러를 숨김
-        log.error("Database error: ", ex); // 로그에는 상세 정보 기록
+        log.error("데이터베이스 오류 발생: ", ex); // 로그에는 상세 정보 기록
         ErrorResponseDTO error = ErrorResponseDTO.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message("데이터 처리 중 오류가 발생했습니다.")

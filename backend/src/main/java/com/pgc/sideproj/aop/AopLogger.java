@@ -26,17 +26,17 @@ public class AopLogger {
 
         Object[] args = joinPoint.getArgs();
 
-        log.info("Request: {} (Args: {})", methodName, args);
+        log.info("요청: {} (인자: {})", methodName, args);
 
         Object result = null;
         try {
             result = joinPoint.proceed();
         } catch (Throwable t) {
-            log.error("Exception in {}: {}", methodName, t.getMessage());
+            log.error("{} 메서드에서 예외 발생: {}", methodName, t.getMessage());
             throw t;
         }
 
-        log.info(" Response: {} (Result: {})", methodName, result);
+        log.info("응답: {} (결과: {})", methodName, result);
 
         return result;
     }

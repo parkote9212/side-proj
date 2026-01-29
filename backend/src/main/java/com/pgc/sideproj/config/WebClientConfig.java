@@ -33,9 +33,9 @@ public class WebClientConfig {
 
     @Bean
     public WebClient onbidWebClient() {
-        log.info("OnBid BaseURL: {}", onbidBaseUrl);
+        log.info("온비드 기본 URL: {}", onbidBaseUrl);
         String actualUrl = (onbidBaseUrl != null && !onbidBaseUrl.isEmpty()) ? onbidBaseUrl : "http://openapi.onbid.co.kr/openapi/services/KamcoPblsalThingInquireSvc";
-        log.info("Using URL: {}", actualUrl);
+        log.info("사용할 URL: {}", actualUrl);
         
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)

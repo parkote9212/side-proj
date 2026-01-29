@@ -16,6 +16,12 @@ import java.time.Duration;
 
 /**
  * 카카오 지도 API (Geocoding) 호출을 담당하는 서비스입니다.
+ * 
+ * <p>주소 문자열을 좌표(위도, 경도)로 변환하는 기능을 제공합니다.
+ * 네트워크 오류 발생 시 자동으로 재시도합니다.
+ * 
+ * @author sideproj
+ * @since 1.0
  */
 @Service
 public class KakaoMapService {
@@ -40,7 +46,11 @@ public class KakaoMapService {
 
     /**
      * 주소를 이용하여 카카오 Geocoding API를 호출하고 좌표 정보를 가져옵니다.
-     * 네트워크 오류(WebClientResponseException) 발생 시 최대 3번 재시도합니다.
+     * 
+     * <p>네트워크 오류(WebClientResponseException) 발생 시 최대 3번 재시도합니다.
+     * 재시도 간격은 1초입니다.
+     * 
+     * <p>주소를 찾지 못하거나 예상치 못한 오류가 발생한 경우 null을 반환합니다.
      *
      * @param address 정제된 주소 문자열
      * @return 좌표 정보 (DocumentDTO) 또는 찾지 못했을 경우 null
@@ -57,7 +67,7 @@ public class KakaoMapService {
         }
 
         try {
-            log.info("카카오 API Geocoding 요청 시작: {}", address);
+            log.info("카카오 API 지오코딩 요청 시작: {}", address);
             KakaoAddressResponseDTO response = kakaoWebClient.get()
                     // 요청 경로 및 쿼리 파라미터 설정 (query=address)
                     .uri(uriBuilder -> uriBuilder
@@ -88,7 +98,7 @@ public class KakaoMapService {
 
             // 첫 번째 검색 결과 반환
             DocumentDTO document = response.getDocuments().get(0);
-            log.info("좌표 획득 성공: [{}, {}] for address: {}", document.getLatitude(), document.getLongitude(), address);
+            log.info("좌표 획득 성공: [{}, {}] - 주소: {}", document.getLatitude(), document.getLongitude(), address);
             return document;
 
         } catch (WebClientResponseException e) {

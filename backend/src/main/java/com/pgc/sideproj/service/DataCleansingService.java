@@ -1,7 +1,5 @@
 package com.pgc.sideproj.service;
 
-// API DTO와 DB DTO의 패키지 경로를 확인하세요.
-
 import com.pgc.sideproj.dto.onbid.OnbidItemDTO;
 import com.pgc.sideproj.dto.db.AuctionHistoryDTO;
 import com.pgc.sideproj.dto.db.AuctionMasterDTO;
@@ -13,8 +11,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Onbid API 응답(OnbidItemDTO)을 DB 저장용 DTO(AuctionMasterDTO, AuctionHistoryDTO)로
- * 변환하고 데이터를 정제하는 서비스입니다.
+ * 온비드 API 응답 데이터를 DB 저장용 DTO로 변환하고 데이터를 정제하는 서비스입니다.
+ * 
+ * <p>온비드 API에서 받은 OnbidItemDTO를 AuctionMasterDTO와 AuctionHistoryDTO로 변환합니다.
+ * 주소 정제, 날짜/시간 변환 등의 데이터 정제 작업을 수행합니다.
+ * 
+ * @author sideproj
+ * @since 1.0
  */
 @Slf4j
 @Service
@@ -29,11 +32,13 @@ public class DataCleansingService {
             "https://www.onbid.co.kr/op/cta/cltr/cltrView.do?cltrCltrNo=";
 
     /**
-     * OnbidItemDTO에서 불변 데이터(마스터)를 추출하여 AuctionMasterDTO를 생성합니다.
-     * 주소 정제, URL 생성 로직이 포함됩니다.
+     * 온비드 API 응답에서 불변 데이터(마스터)를 추출하여 AuctionMasterDTO를 생성합니다.
+     * 
+     * <p>주소 정제, 상세 URL 생성 등의 로직이 포함됩니다.
+     * 위도/경도는 이 단계에서는 null이며, 이후 Geocoding 단계에서 채워집니다.
      *
-     * @param item API에서 응답받은 원본 아이템
-     * @return DB 저장을 위한 AuctionMasterDTO
+     * @param item API에서 응답받은 원본 아이템 DTO
+     * @return DB 저장을 위한 AuctionMasterDTO (item이 null인 경우 null 반환)
      */
     public AuctionMasterDTO createMasterFrom(OnbidItemDTO item) {
         if (item == null) {
@@ -66,11 +71,12 @@ public class DataCleansingService {
     }
 
     /**
-     * OnbidItemDTO에서 가변 데이터(이력)를 추출하여 AuctionHistoryDTO를 생성합니다.
-     * 날짜/시간 변환, 금액 변환 로직이 포함됩니다.
+     * 온비드 API 응답에서 가변 데이터(이력)를 추출하여 AuctionHistoryDTO를 생성합니다.
+     * 
+     * <p>날짜/시간 변환, 금액 변환 등의 로직이 포함됩니다.
      *
-     * @param item API에서 응답받은 원본 아이템
-     * @return DB 저장을 위한 AuctionHistoryDTO
+     * @param item API에서 응답받은 원본 아이템 DTO
+     * @return DB 저장을 위한 AuctionHistoryDTO (item이 null인 경우 null 반환)
      */
     public AuctionHistoryDTO createHistoryFrom(OnbidItemDTO item) {
         if (item == null) {
@@ -98,12 +104,20 @@ public class DataCleansingService {
     // --- Helper Methods ---
 
     /**
-     * 1. 주소 정제 로직
-     * Geocoding에 방해가 될 수 있는 괄호, 쉼표(,), 외 필지 정보, 아파트 동/호수 등
-     * 불필요한 상세 정보를 제거하고 핵심 지번까지만 남깁니다.
+     * 주소를 정제하여 Geocoding에 적합한 형태로 변환합니다.
+     * 
+     * <p>Geocoding에 방해가 될 수 있는 괄호, 쉼표, 필지 정보, 아파트 동/호수 등
+     * 불필요한 상세 정보를 제거하고 핵심 주소만 남깁니다.
+     * 
+     * <p>정제 규칙:
+     * <ul>
+     *   <li>괄호와 대괄호 안의 내용 제거</li>
+     *   <li>'외', '제', '총', '내', '보관', '출자증권' 등의 키워드 이후 정보 제거</li>
+     *   <li>첫 번째 쉼표 이후의 다중 지번 정보 제거</li>
+     * </ul>
      *
      * @param rawAddress API에서 받은 원본 주소 문자열
-     * @return 정제된 주소 문자열
+     * @return 정제된 주소 문자열 (null이거나 빈 문자열인 경우 빈 문자열 반환)
      */
     private String cleanseAddress(String rawAddress) {
         if (rawAddress == null || rawAddress.isBlank()) {
@@ -138,11 +152,13 @@ public class DataCleansingService {
     }
 
     /**
-     * 2. 날짜/시간 변환 로직
-     * Onbid API의 "yyyyMMddHHmmss" 형식 문자열을 LocalDateTime 객체로 변환합니다.
+     * 온비드 API의 날짜/시간 문자열을 LocalDateTime 객체로 변환합니다.
+     * 
+     * <p>온비드 API는 "yyyyMMddHHmmss" 형식의 문자열을 사용합니다.
+     * 변환 실패 시 null을 반환하며, 경고 로그를 출력합니다.
      *
-     * @param dateTimeString API에서 받은 날짜/시간 문자열
-     * @return LocalDateTime 객체 (변환 실패 시 null)
+     * @param dateTimeString API에서 받은 날짜/시간 문자열 ("yyyyMMddHHmmss" 형식)
+     * @return LocalDateTime 객체 (변환 실패 또는 null/빈 문자열인 경우 null)
      */
     private LocalDateTime parseOnbidDateTime(String dateTimeString) {
         if (dateTimeString == null || dateTimeString.isBlank()) {
